@@ -5,16 +5,22 @@
  */
 package id.ac.itb.stei.fair.stega.bpcs;
 
+import java.awt.Color;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.Vector;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 
 /**
  *
@@ -118,32 +124,57 @@ public class BpcsStega {
     
     
     private BufferedImage img = null;
-    private String imgFormat = "";
+    private ImageWriter writer = null;
     
     private boolean readImage(Path fileIn) {
 	try (ImageInputStream input = ImageIO.createImageInputStream(fileIn.toFile())){
 	    ImageReader reader = ImageIO.getImageReaders(input).next();
 	    reader.setInput(input);
-	    img = reader.read(0);
-	    imgFormat = reader.getFormatName();
+	    
+	    assert "png".equalsIgnoreCase(reader.getFormatName()) || 
+		    "bmp".equalsIgnoreCase(reader.getFormatName());
+	    
+	    // Check that image is encoded and loaded in RGB/RGBA format
+	    ImageTypeSpecifier rgbType = null;
+	    Iterator<ImageTypeSpecifier> imageTypes = reader.getImageTypes(0);
+	    while(imageTypes.hasNext()) {
+		ImageTypeSpecifier next = imageTypes.next();
+		if (next.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_RGB) {
+		    rgbType = next;
+		    break;
+		}
+	    }
+	    
+	    assert rgbType != null;
+	    ImageReadParam readParam = reader.getDefaultReadParam();
+	    readParam.setDestinationType(rgbType);
+	    img = reader.read(0, readParam);
+	    
+	    writer = ImageIO.getImageWriter(reader);
+	    reader.dispose();
 	    return true;
 	    
 	} catch (IOException x) {
 	    System.err.format("IOException: %s%n", x);
 	    return false;
+	    
 	}
     }
     
     private boolean writeImage(Path fileOut) {
-	assert img != null && !"".equals(imgFormat);
-	try (OutputStream out = Files.newOutputStream(fileOut)) {
-	    ImageIO.write(img, imgFormat, out);
-	    img = null; imgFormat = "";
+	assert img != null && writer != null;
+	try (ImageOutputStream output = ImageIO.createImageOutputStream(fileOut.toFile())) {
+	    writer.setOutput(output);
+            writer.write(img);
 	    return true;
 	    
 	} catch (IOException x) {
 	    System.err.format("IOException: %s%n", x);
 	    return false;
+	
+	} finally {
+	    writer.dispose();
+	    img = null; writer = null;
 	}
     }
     
@@ -166,15 +197,52 @@ public class BpcsStega {
      * A two dimensional matrix of bitPlaneBlock. 
      * Representing an image channel entire BitPlane.
      */
-    private class channelBitplane {
+    private class channelBitPlane {
 	public Vector<Vector<bitPlaneBlock>> data;
+	
+	public channelBitPlane(int xmax, int ymax) {
+	    // TODO: Implement helper struct constructor
+	}
     }
     
     /**
      * An array of channelBitPlane. 
-     * Representing an image with multiple color channel
+     * Representing an image with multiple color channel (RGBA)
+     * 0 = R, 1 = G, 2 = B, 3 = A
      */
-    private Vector<channelBitplane> imgBitplane;
+    private channelBitPlane[] imgBitPlanes = new channelBitPlane[4];
     
+    /**
+     * Parse the img BufferedImage into the imgBitPlanes.
+     * If the img size (width or length) is not divisible by eight, only parse
+     * the top-left subimage which size (width and length) is divisible by eight
+     * 
+     * For example, if an image has a size of 9x19, only the top-left 8x16 byte
+     * will be converted into BitPlanes. The rest is ignored and won't have it
+     * values changed.
+     */
+    private boolean parseImgToBitPlanes() {
+	assert img != null;
+	Color c = new Color(img.getRGB(0, 0), true);
+	c.getRed();
+	
+	// TODO: Tuturu~
+	
+	return true;
+    }
+    
+    /**
+     * Empty Constructor for testing.
+     */
+    public BpcsStega() {
+	Path in = Paths.get("D:\\Apocyanletter.png");
+	readImage(in);
+	Path out = Paths.get("D:\\Apocyanletter2.png");
+	writeImage(out);
+	in = Paths.get("D:\\Apocyanletter2.png");
+	readImage(in);
+	out = Paths.get("D:\\Apocyanletter3.png");
+	writeImage(out);
+    }
     
 }

@@ -13,6 +13,7 @@ public class Main {
     public static void main(String [] args) {
 	BitSet[] res = BpcsStega.preprocessInput("ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(), 1);
 	System.out.println(Arrays.toString(res));
+	BpcsStega test = new BpcsStega();
     }
 
 }
