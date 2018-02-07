@@ -179,14 +179,16 @@ public class BpcsStega {
     }
     
     /**
-     * An 8x8x8 bit block represented in an array of 8 BitSet. 
-     * Each BitSet is a representation of an 8x8 BitPlane. 
+     * An 8x8x32 bit block represented in an array of 8 BitSet. 
+     * Each BitSet is a representation of an 8x8 BitPlane.
+     * The 32 BitSet layer correspond to every BitPlane in an ARGB image
+     * Layer 0-7 = B, 8-15 = G, 16-23 = R, 24-31 = A
      */
     private class bitPlaneBlock {
 	public BitSet[] block;
 	
 	public bitPlaneBlock() {
-	    this.block = new BitSet[BIT_IN_BYTE];
+	    this.block = new BitSet[32];
 	    for(int i=0; i<block.length; i++) {
 		block[i] = new BitSet(BIT_IN_BP);
 	    }
@@ -194,8 +196,13 @@ public class BpcsStega {
     }
     
     /**
-     * A two dimensional matrix of bitPlaneBlock. 
-     * Representing an image channel entire BitPlane.
+     * Representation of an ARGB image in a collection of BitPlaneBlock. 
+     * If the img size (width or length) is not divisible by eight, only parse
+     * the top-left subimage which size (width and length) is divisible by eight
+     * 
+     * For example, if an image has a size of 9x19, only the top-left 8x16 byte
+     * will be converted into BitPlanes. The rest is ignored and won't have it
+     * values changed.
      */
     private class channelBitPlane {
 	public Vector<Vector<bitPlaneBlock>> data;
@@ -206,25 +213,16 @@ public class BpcsStega {
     }
     
     /**
-     * An array of channelBitPlane. 
-     * Representing an image with multiple color channel (RGBA)
-     * 0 = R, 1 = G, 2 = B, 3 = A
+     * BitPlane representation of the processed image.
      */
-    private channelBitPlane[] imgBitPlanes = new channelBitPlane[4];
+    private channelBitPlane imgBitPlanes;
     
     /**
      * Parse the img BufferedImage into the imgBitPlanes.
-     * If the img size (width or length) is not divisible by eight, only parse
-     * the top-left subimage which size (width and length) is divisible by eight
-     * 
-     * For example, if an image has a size of 9x19, only the top-left 8x16 byte
-     * will be converted into BitPlanes. The rest is ignored and won't have it
-     * values changed.
      */
     private boolean parseImgToBitPlanes() {
 	assert img != null;
-	Color c = new Color(img.getRGB(0, 0), true);
-	c.getRed();
+	int rgb = img.getRGB(0, 0);
 	
 	// TODO: Tuturu~
 	
