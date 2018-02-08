@@ -178,6 +178,7 @@ public class BpcsStega {
 	}
     }
     
+    
     /**
      * 2D MATRIX INDEXING (The number are printed 2d array)
      *	       0---j---4	0---Y---4
@@ -190,7 +191,9 @@ public class BpcsStega {
      * i ~ X ~ width 
      * j ~ Y ~ height
      */
-    
+    private static final int BP_DEPTH = 32;
+    private static final int BP_LENGTH = 8;
+	
     /**
      * Representation of an ARGB image in a collection of BitPlaneBlock. 
      * If the img size (width or length) is not divisible by eight, only parse
@@ -201,9 +204,6 @@ public class BpcsStega {
      * values changed.
      */
     private class imageBitPlanes {
-	
-	private static final int BP_DEPTH = 32;
-	private static final int BP_LENGTH = 8;
 	
 	/**
 	 * An 8x8x32 bit block represented in an array of 8 BitSet. 
@@ -222,9 +222,9 @@ public class BpcsStega {
 	    }
 
 	    public void setColor(int x, int y, int color) {
-		assert x<BP_LENGTH && x>0 && y<BP_LENGTH && y>0;
+		assert x<BP_LENGTH && x>=0 && y<BP_LENGTH && y>=0;
 		for(int i=0; i<BP_DEPTH; i++) {
-		    if((color & 1) != 0) {
+		    if((color & 1) == 1) {
 			block[i].set(x*BP_LENGTH + y);
 		    }
 		    color >>>= 1;
@@ -233,17 +233,17 @@ public class BpcsStega {
 	    }
 	    public int getColor(int x, int y) {
 		int color = 0;
-		for(int i=BP_DEPTH-1; i>0; i--) {
+		for(int i=BP_DEPTH-1; i>=0; i--) {
+		    color <<= 1;
 		    if(block[i].get(x*BP_LENGTH + y)) {
 			color |= 1;
 		    }
-		    color <<= 1;
 		}
 		return color;
 	    }
 
 	    public BitSet getBitPlane(int depth) {
-		assert depth>0 && depth<BP_DEPTH;
+		assert depth>=0 && depth<BP_DEPTH;
 		return block[depth];
 	    }
 	}
@@ -254,18 +254,19 @@ public class BpcsStega {
 	public imageBitPlanes(int xmax, int ymax) {
 	    data = new Vector<>();
 	    assert xmax > BP_LENGTH && ymax > BP_LENGTH;
-	    for(int i=BP_LENGTH; i<xmax; i+=BP_LENGTH) {
+	    int i, j = 0;
+	    for(i=BP_LENGTH; i<xmax; i+=BP_LENGTH) {
 		data.add(new Vector<>());
-		for(int j=BP_LENGTH; j<ymax; j+=BP_LENGTH) {
+		for(j=BP_LENGTH; j<ymax; j+=BP_LENGTH) {
 		    data.lastElement().add(new bitPlaneBlock());
 		}
 	    }
-	    this.xmax = xmax;
-	    this.ymax = ymax;
+	    this.xmax = i-BP_LENGTH;
+	    this.ymax = j-BP_LENGTH;
 	}
 	
 	public boolean inRange(int x, int y) {
-	    return x>0 && x<xmax && y>0 && y<ymax;
+	    return x>=0 && x<xmax && y>=0 && y<ymax;
 	}
 	
 	public int getBlockWidth() {
@@ -276,26 +277,28 @@ public class BpcsStega {
 	}
 	
 	public void setColor(int absX, int absY, int color) {
-	    assert absX<xmax && absX>0 && absY<ymax && absY>0;
+	    assert absX<xmax && absX>=0 && absY<ymax && absY>=0;
 	    int blockX = absX / (int)BP_LENGTH;
 	    int blockY = absY / (int)BP_LENGTH;
+	    assert blockX<getBlockWidth() && blockY<getBlockHeight();
 	    int relX = absX % BP_LENGTH;
 	    int relY = absY % BP_LENGTH;
 	    data.get(blockX).get(blockY).setColor(relX, relY, color);
 	}
-	public int getColor(int absX, int absY, int color) {
-	    assert absX<xmax && absX>0 && absY<ymax && absY>0;
+	public int getColor(int absX, int absY) {
+	    assert absX<xmax && absX>=0 && absY<ymax && absY>=0;
 	    int blockX = absX / (int)BP_LENGTH;
 	    int blockY = absY / (int)BP_LENGTH;
+	    assert blockX<getBlockWidth() && blockY<getBlockHeight();
 	    int relX = absX % BP_LENGTH;
 	    int relY = absY % BP_LENGTH;
 	    return data.get(blockX).get(blockY).getColor(relX, relY);
 	}
 	
 	public BitSet getBitPlane(int blockX, int blockY, int depth) {
-	    assert blockX>0 && blockX<getBlockWidth();
-	    assert blockY>0 && blockY<getBlockHeight();
-	    assert depth>0 && depth<BP_DEPTH;
+	    assert blockX>=0 && blockX<getBlockWidth();
+	    assert blockY>=0 && blockY<getBlockHeight();
+	    assert depth>=0 && depth<BP_DEPTH;
 	    return data.get(blockX).get(blockY).getBitPlane(depth);
 	}
     }
@@ -303,7 +306,7 @@ public class BpcsStega {
     /**
      * BitPlane representation of the processed image.
      */
-    private imageBitPlanes imgBitPlanes;
+    private imageBitPlanes imgBitPlanes = null;
     
     /**
      * Parse the img BufferedImage into the imgBitPlanes.
@@ -321,15 +324,36 @@ public class BpcsStega {
     }
     
     /**
+     * Parse the imgBitPlanes into the img BufferedImage. 
+     * The BufferedImage must not be null and already contain an image,
+     * This function will map the changes in the BitPlane to the image.
+     */
+    private boolean parseBitPlanesToImg() {
+	assert imgBitPlanes != null && img != null;
+	for(int i=0; i<imgBitPlanes.getBlockWidth()*BP_LENGTH; i++) {
+	    for(int j=0; j<imgBitPlanes.getBlockHeight()*BP_LENGTH; j++) {
+		img.setRGB(i, j, imgBitPlanes.getColor(i, j));
+	    }
+	}
+	return true;
+    }
+    
+    
+    /**
      * Empty Constructor for testing.
      */
     public BpcsStega() {
 	Path in = Paths.get("D:\\Apocyanletter.png");
 	readImage(in);
+	parseImgToBitPlanes();	
+	parseBitPlanesToImg();
 	Path out = Paths.get("D:\\Apocyanletter2.png");
 	writeImage(out);
+	
 	in = Paths.get("D:\\Apocyanletter2.png");
 	readImage(in);
+	parseImgToBitPlanes();
+	parseBitPlanesToImg();
 	out = Paths.get("D:\\Apocyanletter3.png");
 	writeImage(out);
     }
