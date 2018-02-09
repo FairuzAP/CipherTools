@@ -5,7 +5,6 @@
  */
 package id.ac.itb.stei.fair.stega.bpcs;
 
-import java.awt.Color;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -108,16 +107,87 @@ public class BpcsStega {
 		
 		// If a message BitSet need to be conjugated, set the respective conjugate map bit,
 		// Also conjugate the message BitSet itself
-		double curr_cxty = countComplexity(res[1+cm_bp_len+i]);
+		int next_in_idx = 1+cm_bp_len+(i*BIT_IN_BP+j);
+		double curr_cxty = countComplexity(res[next_in_idx]);
 		if(curr_cxty < threshold) {
 		    next.set(j);
-		    res[1+cm_bp_len+i].xor(CHESS_BOARD);
-		    assert Math.abs((1 - curr_cxty)-countComplexity(res[1+cm_bp_len+i])) < EPSILON;
+		    res[next_in_idx].xor(CHESS_BOARD);
+		    assert Math.abs((1 - curr_cxty)-countComplexity(res[next_in_idx])) < EPSILON;
 		}
 		
 	    }
 	    res[idx++] = next;
 	}
+	
+	// Conjugate the message header
+	for(int i=0; i<1+cm_bp_len; i++) {
+	    res[i].xor(CHESS_BOARD);
+	}
+	
+	return res;
+    }
+    
+    /**
+     * @param in Array of Bitset, generated from a byte array by preprocessInput
+     * @return The data contained in the given BitSet array
+     */
+    public static byte[] postprocessOutput(BitSet[] in) {
+	
+	// Conjugate the message size header
+	in[0].xor(CHESS_BOARD);
+	
+	int in_byte_len = (int) in[0].toLongArray()[0];
+	int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)BYTE_IN_BP);
+	assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
+	int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
+	int bp_len = 1 + in_bp_len + cm_bp_len;
+	assert bp_len == in.length;
+	
+	// Conjugate the ConjugateMapping
+	for(int i=1; i<1+cm_bp_len; i++) {
+	    in[i].xor(CHESS_BOARD);
+	}
+	
+	byte[] res = new byte[in_byte_len];
+	int in_bp_idx = 1 + cm_bp_len;
+	int cm_bp_idx = 1;
+	int cm_bit_idx = 0;
+	
+	// For every "input" BitPlane,
+	for(int i=0; i<bp_len-(1+cm_bp_len); i++) {
+	    
+	    // Conjugate the next BitPlane if needed
+	    if(in[cm_bp_idx].get(cm_bit_idx)) 
+		in[in_bp_idx].xor(CHESS_BOARD);
+	    
+	    cm_bit_idx++;
+	    if(cm_bit_idx==BIT_IN_BP) {
+		cm_bp_idx++;
+		cm_bit_idx = 0;
+	    }
+	    
+	    // Get the current BitPlane byte array, pad with zero if needed
+	    byte[] next = in[in_bp_idx].toByteArray();
+	    if(next.length != BYTE_IN_BP) {
+		byte[] temp = new byte[BYTE_IN_BP];
+		System.arraycopy(next, 0, temp, 0, next.length);
+		next = temp;
+	    }
+	    assert next.length == BYTE_IN_BP;
+	    
+	    // For every byte in said "input" BitPlane, copy said byte to the output
+	    for(int j=0; j<BYTE_IN_BP; j++) {
+		res[i*BYTE_IN_BP + j] = next[j];
+		
+		// Break out of loop if all the byte is processed
+		in_byte_len--;
+		if(in_byte_len == 0) break;
+	    }
+	    if(in_byte_len == 0) break;	    
+	    in_bp_idx++;
+	}
+	assert (cm_bp_idx-1)*BIT_IN_BP+cm_bit_idx == bp_len-(1+cm_bp_len);
+	assert in_byte_len == 0;
 	
 	return res;
     }
