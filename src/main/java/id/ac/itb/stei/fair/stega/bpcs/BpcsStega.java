@@ -192,8 +192,14 @@ public class BpcsStega {
 	return res;
     }
     
-    
-    private BufferedImage img = null;
+    /**
+     * contains original image, don't modify this. 
+     */
+    private BufferedImage imgOriginal = null; 
+    /**
+     * contains modified image, if you want to modify image, modify this
+     */
+    private BufferedImage imgModified = null;  
     private ImageWriter writer = null;
     
     private boolean readImage(Path fileIn) {
@@ -218,7 +224,9 @@ public class BpcsStega {
 	    assert rgbType != null;
 	    ImageReadParam readParam = reader.getDefaultReadParam();
 	    readParam.setDestinationType(rgbType);
-	    img = reader.read(0, readParam);
+	    imgOriginal = reader.read(0, readParam);
+            assert imgOriginal != null;
+            imgModified = imgOriginal;
 	    
 	    writer = ImageIO.getImageWriter(reader);
 	    reader.dispose();
@@ -232,10 +240,10 @@ public class BpcsStega {
     }
     
     private boolean writeImage(Path fileOut) {
-	assert img != null && writer != null;
+	assert imgModified != null && writer != null;
 	try (ImageOutputStream output = ImageIO.createImageOutputStream(fileOut.toFile())) {
 	    writer.setOutput(output);
-            writer.write(img);
+            writer.write(imgModified);
 	    return true;
 	    
 	} catch (IOException x) {
@@ -244,7 +252,7 @@ public class BpcsStega {
 	
 	} finally {
 	    writer.dispose();
-	    img = null; writer = null;
+	    imgModified = null; writer = null;
 	}
     }
     
@@ -428,34 +436,80 @@ public class BpcsStega {
     private imageBitPlanes imgBitPlanes = null;
     
     /**
-     * Parse the img BufferedImage into the imgBitPlanes.
+     * Parse the imgModified BufferedImage into the imgBitPlanes.
      */
     private boolean parseImgToBitPlanes() {
-	assert img != null;
-	imgBitPlanes = new imageBitPlanes(img.getWidth(), img.getHeight());
-	for(int i=0; i<img.getWidth(); i++) {
-	    for(int j=0; j<img.getHeight(); j++) {
+	assert imgModified != null;
+	imgBitPlanes = new imageBitPlanes(imgModified.getWidth(), imgModified.getHeight());
+	for(int i=0; i<imgModified.getWidth(); i++) {
+	    for(int j=0; j<imgModified.getHeight(); j++) {
 		if(imgBitPlanes.inRange(i, j))
-		    imgBitPlanes.setColor(i, j, img.getRGB(i, j));
+		    imgBitPlanes.setColor(i, j, imgModified.getRGB(i, j));
 	    }
 	}
 	return true;
     }
     
     /**
-     * Parse the imgBitPlanes into the img BufferedImage. 
+     * Parse the imgBitPlanes into the imgOriginal BufferedImage. 
      * The BufferedImage must not be null and already contain an image,
      * This function will map the changes in the BitPlane to the image.
      */
     private boolean parseBitPlanesToImg() {
-	assert imgBitPlanes != null && img != null;
+	assert imgBitPlanes != null && imgModified != null;
 	for(int i=0; i<imgBitPlanes.getBlockWidth()*BP_LENGTH; i++) {
 	    for(int j=0; j<imgBitPlanes.getBlockHeight()*BP_LENGTH; j++) {
-		img.setRGB(i, j, imgBitPlanes.getColor(i, j));
+		imgModified.setRGB(i, j, imgBitPlanes.getColor(i, j));
 	    }
 	}
 	return true;
     }    
+    
+    /**
+     * return PSNR value between original image and modified image
+     * if size isn't the same, the rest of smaller images will be
+     * treated as is padded by (0,0,0)
+     * @param original original image
+     * @param modified modified image
+     * @return 
+     */
+    private double calculatePSNR(BufferedImage imgOriginal, 
+                                 BufferedImage imgModified) {
+        assert imgOriginal != null && imgModified != null;
+        
+        int maxWidth = Math.max(imgOriginal.getWidth(),imgModified.getWidth());
+        int maxHeight = Math.max(imgOriginal.getHeight(),imgModified.getHeight());
+        
+        double rms;
+        int diff = 0;
+        
+        for(int i=0; i<maxWidth; i++) {
+	    for(int j=0; j<maxHeight; j++) {
+                int originalColor = 0;
+                int modifiedColor = 0;
+                
+                if ((i < imgOriginal.getWidth()) && (j < imgOriginal.getHeight())) {
+                    originalColor = imgOriginal.getRGB(i, j);
+                }
+                
+                if ((i < imgModified.getWidth()) && (j < imgModified.getHeight())) {
+                    modifiedColor = imgModified.getRGB(i, j);
+                }
+                
+                // take each color (ARGB), get the difference, sum it all
+                for (int k=0;k<4;k++) {
+                    int currentOriColor = (originalColor >> (8*k)) & 0xff;
+                    int currentModColor = (modifiedColor >> (8*k)) & 0xff;
+                    
+                    diff += Math.pow(currentModColor - currentOriColor, 2);
+                }
+            }
+        }
+        
+        rms = Math.sqrt(diff/(maxWidth*maxHeight));
+            
+        return 20 * Math.log10(255/rms);
+    }
     
     /**
      * Empty Constructor for testing.
@@ -465,6 +519,7 @@ public class BpcsStega {
 	readImage(in);
 	parseImgToBitPlanes();	
 	parseBitPlanesToImg();
+        System.out.println(calculatePSNR(imgOriginal, imgModified));
 	Path out = Paths.get("D:\\Apocyanletter2.png");
 	writeImage(out);
 	
@@ -472,6 +527,7 @@ public class BpcsStega {
 	readImage(in);
 	parseImgToBitPlanes();
 	parseBitPlanesToImg();
+        System.out.println(calculatePSNR(imgOriginal, imgModified));
 	out = Paths.get("D:\\Apocyanletter3.png");
 	writeImage(out);
     }
