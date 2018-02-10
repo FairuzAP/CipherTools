@@ -355,6 +355,7 @@ public class BpcsStega {
 	    int relY = absY % BP_LENGTH;
 	    data.get(blockX).get(blockY).setColor(relX, relY, color);
 	}
+        
 	public int getColor(int absX, int absY) {
 	    assert absX<xmax && absX>=0 && absY<ymax && absY>=0;
 	    int blockX = absX / (int)BP_LENGTH;
@@ -371,6 +372,54 @@ public class BpcsStega {
 	    assert depth>=0 && depth<BP_DEPTH;
 	    return data.get(blockX).get(blockY).getBitPlane(depth);
 	}
+        
+        /**
+         * Convert bit encoding in imageBitPlanes into Canonical Gray Code. 
+         */
+        private void toCGC() {
+            boolean prev = false;
+            boolean init = true; 
+            for (Vector<bitPlaneBlock> vec : data) {
+                for (bitPlaneBlock p_block : vec) {
+                    for (int i = 0; i < BIT_IN_BP; i++) {
+                        for(int j = BP_DEPTH-1; j>=0; j--) {
+                            BitSet cur_block = p_block.block[j];
+                            // Start of iteration
+                            if (init) {
+                                prev = cur_block.get(i);
+                                init = false;
+                            }
+                            cur_block.set(i, prev ^ cur_block.get(i));
+                            prev = cur_block.get(i);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /**
+         * Convert bit encoding in imageBitPlanes into Pure Byte Code. 
+         */
+        private void toPBC() {
+            boolean prev = false;
+            boolean init = true; 
+            for (Vector<bitPlaneBlock> vec : data) {
+                for (bitPlaneBlock p_block : vec) {
+                    for (int i = 0; i < BIT_IN_BP; i++) {
+                        for(int j = BP_DEPTH-1; j>=0; j--) {
+                            BitSet cur_block = p_block.block[j];
+                            // Start of iteration
+                            if (init) {
+                                prev = cur_block.get(i);
+                                init = false;
+                            }
+                            cur_block.set(i, cur_block.get(i) ^ prev);
+                            prev = cur_block.get(i);
+                        }
+                    }
+                }
+            }
+        }
     }
     
     /**
@@ -406,8 +455,7 @@ public class BpcsStega {
 	    }
 	}
 	return true;
-    }
-    
+    }    
     
     /**
      * Empty Constructor for testing.
