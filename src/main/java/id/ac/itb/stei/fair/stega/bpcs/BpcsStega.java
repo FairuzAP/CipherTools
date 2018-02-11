@@ -192,6 +192,82 @@ public class BpcsStega {
 	return res;
     }
     
+    public void embedMessage(BitSet[] in, double threshold) {
+	assert imgBitPlanes != null;
+        
+        int indexBitSet = 0;
+        
+        for (int i=0; i<imgBitPlanes.getBlockWidth() && indexBitSet < in.length; i++) {
+            for (int j=0; j<imgBitPlanes.getBlockHeight() && indexBitSet < in.length; j++) {
+                for (int k=0; k<BP_DEPTH && indexBitSet < in.length; k++) {                  
+                    
+                    BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
+                    
+                    if (countComplexity(bp) >= threshold) {
+                        imgBitPlanes.setBitPlane(in[indexBitSet], i, j, k);
+                        indexBitSet++;
+                    }
+                    
+                }
+            }
+        }
+    }
+    
+    public BitSet[] extractMessage(double threshold) {
+        assert imgBitPlanes != null;
+        
+        BitSet byte_len = null;
+        
+        
+        for (int i=0; i<imgBitPlanes.getBlockWidth() && byte_len != null; i++) {
+            for (int j=0; j<imgBitPlanes.getBlockHeight() && byte_len != null; j++) {
+                for (int k=0; k<BP_DEPTH && byte_len != null; k++) { 
+                    BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
+                    
+                    if (countComplexity(bp) >= threshold) {
+                        byte_len = bp;
+                    }
+                }   
+            }
+        }
+        
+        assert byte_len != null;
+        int in_byte_len = (int) byte_len.toLongArray()[0];
+	int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)BYTE_IN_BP);
+	assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
+	int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
+	int bp_len = 1 + in_bp_len + cm_bp_len;
+        
+        BitSet[] bs = new BitSet[bp_len];
+        
+        bs[0] = byte_len;
+        
+        int indexBitSet = 1;
+        
+        for (int i=0; i<imgBitPlanes.getBlockWidth() && indexBitSet < bs.length; i++) {
+            for (int j=0; j<imgBitPlanes.getBlockHeight() && indexBitSet < bs.length; j++) {
+                for (int k=0; k<BP_DEPTH && indexBitSet < bs.length; k++) {                  
+                    
+                    BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
+                    
+                    if (countComplexity(bp) >= threshold) {
+                        bs[indexBitSet] = bp;
+                        indexBitSet++;
+                    }
+                    
+                }
+            }
+        }
+        
+        return bs;
+    }
+    
+    /**
+     * contains original image, don't modify this. 
+     */    
+    /**
+     * contains original image, don't modify this. 
+     */    
     /**
      * contains original image, don't modify this. 
      */
@@ -324,6 +400,12 @@ public class BpcsStega {
 		assert depth>=0 && depth<BP_DEPTH;
 		return block[depth];
 	    }
+            
+            
+	    public void setBitPlane(BitSet bs, int depth) {
+		assert depth>=0 && depth<BP_DEPTH;
+		block[depth] = bs;
+	    }
 	}
 	
 	private final Vector<Vector<bitPlaneBlock>> data;
@@ -379,6 +461,13 @@ public class BpcsStega {
 	    assert blockY>=0 && blockY<getBlockHeight();
 	    assert depth>=0 && depth<BP_DEPTH;
 	    return data.get(blockX).get(blockY).getBitPlane(depth);
+	}
+        
+	public void setBitPlane(BitSet bs, int blockX, int blockY, int depth) {
+	    assert blockX>=0 && blockX<getBlockWidth();
+	    assert blockY>=0 && blockY<getBlockHeight();
+	    assert depth>=0 && depth<BP_DEPTH;
+	    data.get(blockX).get(blockY).setBitPlane(bs, depth);
 	}
         
         /**
@@ -468,13 +557,12 @@ public class BpcsStega {
     /**
      * return PSNR value between original image and modified image
      * if size isn't the same, the rest of smaller images will be
-     * treated as is padded by (0,0,0)
-     * @param original original image
-     * @param modified modified image
-     * @return 
+     * treated as is padded by (0,0,0).
+     * 
+     * Be sure to load an image first!
+     * @return PSNR between original and modified image
      */
-    private double calculatePSNR(BufferedImage imgOriginal, 
-                                 BufferedImage imgModified) {
+    private double calculatePSNR() {
         assert imgOriginal != null && imgModified != null;
         
         int maxWidth = Math.max(imgOriginal.getWidth(),imgModified.getWidth());
@@ -519,7 +607,7 @@ public class BpcsStega {
 	readImage(in);
 	parseImgToBitPlanes();	
 	parseBitPlanesToImg();
-        System.out.println(calculatePSNR(imgOriginal, imgModified));
+        System.out.println(calculatePSNR());
 	Path out = Paths.get("D:\\Apocyanletter2.png");
 	writeImage(out);
 	
@@ -527,7 +615,7 @@ public class BpcsStega {
 	readImage(in);
 	parseImgToBitPlanes();
 	parseBitPlanesToImg();
-        System.out.println(calculatePSNR(imgOriginal, imgModified));
+        System.out.println(calculatePSNR());
 	out = Paths.get("D:\\Apocyanletter3.png");
 	writeImage(out);
     }
