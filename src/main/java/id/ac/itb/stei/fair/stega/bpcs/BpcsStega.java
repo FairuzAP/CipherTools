@@ -135,8 +135,9 @@ public class BpcsStega {
 	
 	// Conjugate the message size header
 	in[0].xor(CHESS_BOARD);
-	
 	int in_byte_len = (int) in[0].toLongArray()[0];
+	in[0].xor(CHESS_BOARD);
+        
 	int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)BYTE_IN_BP);
 	assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
 	int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
@@ -192,7 +193,7 @@ public class BpcsStega {
 	return res;
     }
     
-    public void embedMessage(BitSet[] in, double threshold) {
+    private void embedMessage(BitSet[] in, double threshold) {
 	assert imgBitPlanes != null;
         
         int indexBitSet = 0;
@@ -203,7 +204,8 @@ public class BpcsStega {
                     
                     BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
                     
-                    if (countComplexity(bp) >= threshold) {
+                    double cs = countComplexity(bp);
+                    if (cs >= threshold) {
                         imgBitPlanes.setBitPlane(in[indexBitSet], i, j, k);
                         indexBitSet++;
                     }
@@ -211,28 +213,37 @@ public class BpcsStega {
                 }
             }
         }
+      
+        assert indexBitSet == in.length : "image is too small for message. If it is intended, delete this assertion";
     }
     
-    public BitSet[] extractMessage(double threshold) {
+    private BitSet[] extractMessage(double threshold) {
         assert imgBitPlanes != null;
         
         BitSet byte_len = null;
         
+        int first_i=0, first_j=0, first_k=0;
         
-        for (int i=0; i<imgBitPlanes.getBlockWidth() && byte_len != null; i++) {
-            for (int j=0; j<imgBitPlanes.getBlockHeight() && byte_len != null; j++) {
-                for (int k=0; k<BP_DEPTH && byte_len != null; k++) { 
+        for (int i=0; i<imgBitPlanes.getBlockWidth() && byte_len == null; i++) {
+            for (int j=0; j<imgBitPlanes.getBlockHeight() && byte_len == null; j++) {
+                for (int k=0; k<BP_DEPTH && byte_len == null; k++) { 
                     BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
                     
                     if (countComplexity(bp) >= threshold) {
                         byte_len = bp;
+                        first_i = i;
+                        first_j = j;
+                        first_k = k;
                     }
+                    
                 }   
             }
         }
         
         assert byte_len != null;
+        byte_len.xor(CHESS_BOARD);
         int in_byte_len = (int) byte_len.toLongArray()[0];
+        byte_len.xor(CHESS_BOARD);
 	int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)BYTE_IN_BP);
 	assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
 	int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
@@ -248,16 +259,22 @@ public class BpcsStega {
             for (int j=0; j<imgBitPlanes.getBlockHeight() && indexBitSet < bs.length; j++) {
                 for (int k=0; k<BP_DEPTH && indexBitSet < bs.length; k++) {                  
                     
-                    BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
-                    
-                    if (countComplexity(bp) >= threshold) {
-                        bs[indexBitSet] = bp;
-                        indexBitSet++;
+                    if (i != first_i || j != first_j || k != first_k) {
+                        BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
+
+                        double cs = countComplexity(bp);
+                        if (countComplexity(bp) >= threshold) {
+                            bs[indexBitSet] = bp;
+                            indexBitSet++;
+                        }
                     }
                     
                 }
             }
         }
+        
+        
+        assert indexBitSet == bs.length : "image is too small for message. If it is intended, delete this assertion";
         
         return bs;
     }
@@ -265,12 +282,6 @@ public class BpcsStega {
     /**
      * contains original image, don't modify this. 
      */    
-    /**
-     * contains original image, don't modify this. 
-     */    
-    /**
-     * contains original image, don't modify this. 
-     */
     private BufferedImage imgOriginal = null; 
     /**
      * contains modified image, if you want to modify image, modify this
@@ -301,8 +312,7 @@ public class BpcsStega {
 	    ImageReadParam readParam = reader.getDefaultReadParam();
 	    readParam.setDestinationType(rgbType);
 	    imgOriginal = reader.read(0, readParam);
-            assert imgOriginal != null;
-            imgModified = imgOriginal;
+            imgModified = reader.read(0, readParam);
 	    
 	    writer = ImageIO.getImageWriter(reader);
 	    reader.dispose();
@@ -594,7 +604,7 @@ public class BpcsStega {
             }
         }
         
-        rms = Math.sqrt(diff/(maxWidth*maxHeight));
+        rms = Math.sqrt((double)diff/(double)(maxWidth*maxHeight));
             
         return 20 * Math.log10(255/rms);
     }
@@ -603,21 +613,39 @@ public class BpcsStega {
      * Empty Constructor for testing.
      */
     public BpcsStega() {
+        
+	byte[] message = "ABCDEFGHIJKLMNOPQRSTUVWXYZABC".getBytes();
+        double threshold = 0.3;
+        
 	Path in = Paths.get("D:\\Apocyanletter.png");
 	readImage(in);
-	parseImgToBitPlanes();	
+        
+	parseImgToBitPlanes();
+        embedMessage(preprocessInput(message, threshold), threshold);
+        message = postprocessOutput(extractMessage(threshold));
+        System.out.println("Message extracted 1 : " + new String(message));
 	parseBitPlanesToImg();
-        System.out.println(calculatePSNR());
+        System.out.println("PSNR after embedding : " + calculatePSNR());
+        
+	parseImgToBitPlanes();
+        message = postprocessOutput(extractMessage(threshold)); // Error here, the first bitset doesn't contain appropriate message length embedded
+        System.out.println("Message extracted 2 : " + new String(message));
+	parseBitPlanesToImg();
+        System.out.println("PSNR after embedding : " + calculatePSNR());
+        
 	Path out = Paths.get("D:\\Apocyanletter2.png");
 	writeImage(out);
 	
+        
 	in = Paths.get("D:\\Apocyanletter2.png");
 	readImage(in);
 	parseImgToBitPlanes();
+        message = postprocessOutput(extractMessage(threshold));
+        System.out.println("Message extracted 3 : " + new String(message));
 	parseBitPlanesToImg();
-        System.out.println(calculatePSNR());
+        System.out.println("PSNR after extracting : " + calculatePSNR());
 	out = Paths.get("D:\\Apocyanletter3.png");
 	writeImage(out);
     }
-    
+        
 }
