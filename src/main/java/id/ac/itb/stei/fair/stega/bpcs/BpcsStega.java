@@ -232,6 +232,50 @@ public class BpcsStega {
         assert indexBitSet == in.length : "image is too small for message. If it is intended, delete this assertion";
     }
 
+    private long generateSeed(String key) {
+        long seed = 0;
+        
+        key = key.toUpperCase();
+        for (int i=0; i<key.length(); i++) {
+            int intChar = (int) key.charAt(i) - (int) 'A';
+            assert intChar >= 0 && intChar < 26;
+            seed += intChar;
+        }
+        
+        return seed;
+    }
+    
+    private void embedMessage(BitSet[] in, double threshold, long seed) {
+        assert imgBitPlanes != null;
+
+               
+        PosRandomizer rng = new PosRandomizer(seed, imgBitPlanes.getBlockWidth(), 
+                                                    imgBitPlanes.getBlockHeight(), 
+                                                    BP_DEPTH);
+        
+        int indexBitSet = 0;
+        
+        int i=0;
+        while (indexBitSet < in.length) {
+            int currentX = rng.nextX;
+            int currentY = rng.nextY;
+            int currentDepth = rng.nextDepth;
+            rng.next();
+            
+            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
+
+            double cs = countComplexity(bp);
+            if (cs >= threshold) {
+                imgBitPlanes.setBitPlane(in[indexBitSet], currentX, currentY, currentDepth);
+                indexBitSet++;
+            }    
+            i++;
+            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * BP_DEPTH * 2 :
+                    "Image is too small for message";          
+        }
+ 
+    }
+    
     private BitSet[] extractMessage(double threshold) {
         assert imgBitPlanes != null;
 
@@ -278,7 +322,7 @@ public class BpcsStega {
                         BitSet bp = imgBitPlanes.getBitPlane(i, j, k);
 
                         double cs = countComplexity(bp);
-                        if (countComplexity(bp) >= threshold) {
+                        if (cs >= threshold) {
                             bs[indexBitSet] = bp;
                             indexBitSet++;
                         }
@@ -294,6 +338,72 @@ public class BpcsStega {
         return bs;
     }
 
+    
+    private BitSet[] extractMessage(double threshold, long seed) {
+        assert imgBitPlanes != null;
+
+        BitSet byte_len = null;
+
+        int firstX, firstY, firstDepth;
+        
+        
+        PosRandomizer rng = new PosRandomizer(seed, imgBitPlanes.getBlockWidth(), 
+                                                    imgBitPlanes.getBlockHeight(), 
+                                                    BP_DEPTH);
+        
+        int i=0;
+        while (byte_len == null) {
+            firstX = rng.nextX;
+            firstY = rng.nextY;
+            firstDepth = rng.nextDepth;
+            
+            BitSet bp = imgBitPlanes.getBitPlane(firstX, firstY, firstDepth);
+
+            if (countComplexity(bp) >= threshold) {
+                byte_len = bp;
+            }
+            i++;
+            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * BP_DEPTH * 2 :
+                    "There is no message in image";   
+        }
+
+        assert byte_len != null;
+        byte_len.xor(CHESS_BOARD);
+        int in_byte_len = (int) byte_len.toLongArray()[0];
+        byte_len.xor(CHESS_BOARD);
+        int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)BYTE_IN_BP);
+        assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
+        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
+        int bp_len = 1 + in_bp_len + cm_bp_len;
+
+        BitSet[] bs = new BitSet[bp_len];
+
+        bs[0] = byte_len;
+
+        int indexBitSet = 1;
+
+        i=0;
+        while (indexBitSet < bs.length) {
+        
+            rng.next();
+            int currentX = rng.nextX;
+            int currentY = rng.nextY;
+            int currentDepth = rng.nextDepth;
+            
+            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
+
+            double cs = countComplexity(bp);
+            if (cs >= threshold) {
+                bs[indexBitSet] = bp;
+                indexBitSet++;
+            }
+            i++;
+            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * BP_DEPTH * 2 :
+                    "There is no message in image";   
+        }
+
+        return bs;
+    }
     
     /**
      * contains original image, don't modify this.
@@ -654,6 +764,8 @@ public class BpcsStega {
      */
     public BpcsStega() {
         byte[] message = "ABCDEFGHIJKLMNOPQRSTUVWXYZABC".getBytes();
+        byte[] message2 = "another message entirely".getBytes();
+        String key = new String("OCEANOGRAPHY");
         double threshold = 0.3;
 
 //        Path in = Paths.get("D:\\Apocyanletter.png");
@@ -696,7 +808,7 @@ public class BpcsStega {
         message = postprocessOutput(extractMessage(threshold));
         System.out.println("Message extracted 2 : " + new String(message));
         parseBitPlanesToImg();
-        System.out.println("PSNR after embedding : " + calculatePSNR());
+        System.out.println("PSNR after extracting before save  : " + calculatePSNR());
 
         Path out = Paths.get("D:\\Apocyanletter2.png");
         writeImage(out);
@@ -707,8 +819,20 @@ public class BpcsStega {
         parseImgToBitPlanes();
         message = postprocessOutput(extractMessage(threshold));
         System.out.println("Message extracted 3 : " + new String(message));
+        System.out.println("PSNR after extracting immediately : " + calculatePSNR());
+        
+        embedMessage(preprocessInput(message2, threshold), threshold, generateSeed(key));
+        message = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        System.out.println("Message extracted 4 : " + new String(message));
         parseBitPlanesToImg();
-        System.out.println("PSNR after extracting : " + calculatePSNR());
+        System.out.println("PSNR after embedding with key : " + calculatePSNR());
+        
+        parseImgToBitPlanes();
+        message = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        System.out.println("Message extracted 5 : " + new String(message));
+        parseBitPlanesToImg();
+        System.out.println("PSNR after extracting before save  : " + calculatePSNR());
+        
         out = Paths.get("D:\\Apocyanletter3.png");
         writeImage(out);
     }

@@ -82,7 +82,7 @@ public class PosRandomizer {
 	nextY = rng.nextInt(ymax);
 	nextDepth = rng.nextInt(maxDepth);
 	int iter = 1;
-	while(checkDupl(nextX, nextY, nextDepth)) {
+	while(!checkDupl(nextX, nextY, nextDepth)) {
 	    nextX = rng.nextInt(xmax);
 	    nextY = rng.nextInt(ymax);
 	    nextDepth = rng.nextInt(maxDepth);
