@@ -210,6 +210,7 @@ public class BpcsStega {
     
     private void embedMessage(BitSet[] in, double threshold) {
         assert imgBitPlanes != null;
+        imgBitPlanes.toCGC();
 
         int indexBitSet = 0;
 
@@ -230,6 +231,8 @@ public class BpcsStega {
         }
 
         assert indexBitSet == in.length : "image is too small for message. If it is intended, delete this assertion";
+        
+        imgBitPlanes.toPBC();
     }
 
     private long generateSeed(String key) {
@@ -247,7 +250,6 @@ public class BpcsStega {
     
     private void embedMessage(BitSet[] in, double threshold, long seed) {
         assert imgBitPlanes != null;
-
                
         PosRandomizer rng = new PosRandomizer(seed, imgBitPlanes.getBlockWidth(), 
                                                     imgBitPlanes.getBlockHeight(), 
@@ -257,10 +259,10 @@ public class BpcsStega {
         
         int i=0;
         while (indexBitSet < in.length) {
+            rng.next();
             int currentX = rng.nextX;
             int currentY = rng.nextY;
             int currentDepth = rng.nextDepth;
-            rng.next();
             
             BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
 
@@ -278,6 +280,7 @@ public class BpcsStega {
     
     private BitSet[] extractMessage(double threshold) {
         assert imgBitPlanes != null;
+        imgBitPlanes.toCGC();
 
         BitSet byte_len = null;
 
@@ -310,7 +313,7 @@ public class BpcsStega {
 
         BitSet[] bs = new BitSet[bp_len];
 
-        bs[0] = byte_len;
+        bs[0] = (BitSet) byte_len.clone();
 
         int indexBitSet = 1;
 
@@ -323,7 +326,7 @@ public class BpcsStega {
 
                         double cs = countComplexity(bp);
                         if (cs >= threshold) {
-                            bs[indexBitSet] = bp;
+                            bs[indexBitSet] = (BitSet) bp.clone();
                             indexBitSet++;
                         }
                     }
@@ -333,8 +336,9 @@ public class BpcsStega {
         }
 
 
-        assert indexBitSet == bs.length : "image is too small for message. If it is intended, delete this assertion";
+        assert indexBitSet == bs.length : "There is no message in image";
 
+        imgBitPlanes.toPBC();
         return bs;
     }
 
@@ -353,6 +357,7 @@ public class BpcsStega {
         
         int i=0;
         while (byte_len == null) {
+            rng.next();
             firstX = rng.nextX;
             firstY = rng.nextY;
             firstDepth = rng.nextDepth;
@@ -441,7 +446,10 @@ public class BpcsStega {
             imgOriginal = reader.read(0, readParam);
             imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
             imgModified.getGraphics().drawImage(imgOriginal, 0, 0, null);
-
+            /*
+            imgOriginal = new BufferedImage(imgModified.getWidth(), imgModified.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            imgOriginal.getGraphics().drawImage(imgModified, 0, 0, null);
+*/
             assert bufferedImagesEqual(imgOriginal, imgModified);
             writer = ImageIO.getImageWriter(reader);
             reader.dispose();
@@ -608,53 +616,71 @@ public class BpcsStega {
             data.get(blockX).get(blockY).setBitPlane(bs, depth);
         }
 
-            /**
-             * Convert bit encoding in imageBitPlanes into Canonical Gray Code.
-             */
-            private void toCGC() {
-                boolean prev = false;
-                boolean init = true;
-                for (Vector<bitPlaneBlock> vec : data) {
-                    for (bitPlaneBlock p_block : vec) {
-                        for (int i = 0; i < BIT_IN_BP; i++) {
-                            for(int j = BP_DEPTH-1; j>=0; j--) {
-                                BitSet cur_block = p_block.block[j];
-                                // Start of iteration
-                                if (init) {
-                                    prev = cur_block.get(i);
-                                    init = false;
-                                }
-                                cur_block.set(i, prev ^ cur_block.get(i));
+        /**
+         * Convert bit encoding in imageBitPlanes into Canonical Gray Code.
+         */
+        private void toCGC() {
+        //    boolean prev = false;
+        //    boolean init = true;
+            for (Vector<bitPlaneBlock> vec : data) {
+                for (bitPlaneBlock p_block : vec) {
+                    /*
+                    for (int i = 0; i < BIT_IN_BP; i++) {
+                        for(int j = BP_DEPTH-1; j>=0; j--) {
+                            BitSet cur_block = p_block.block[j];
+                            // Start of iteration
+                            if (init) {
                                 prev = cur_block.get(i);
+                                init = false;
                             }
+                            cur_block.set(i, prev ^ cur_block.get(i));
+                            prev = cur_block.get(i);
+                        }
+                    }
+                    */
+                    for (int i=BP_DEPTH-1; i>0; i--) {
+                        BitSet cur_block = p_block.block[i];
+                        BitSet prev = p_block.block[i-1];
+                        for (int j=0; j < BIT_IN_BP; j++) {
+                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
                         }
                     }
                 }
             }
+        }
 
-            /**
-             * Convert bit encoding in imageBitPlanes into Pure Byte Code.
-             */
-            private void toPBC() {
-                boolean prev = false;
-                boolean init = true;
-                for (Vector<bitPlaneBlock> vec : data) {
-                    for (bitPlaneBlock p_block : vec) {
-                        for (int i = 0; i < BIT_IN_BP; i++) {
-                            for(int j = BP_DEPTH-1; j>=0; j--) {
-                                BitSet cur_block = p_block.block[j];
-                                // Start of iteration
-                                if (init) {
-                                    prev = cur_block.get(i);
-                                    init = false;
-                                }
-                                cur_block.set(i, cur_block.get(i) ^ prev);
+        /**
+         * Convert bit encoding in imageBitPlanes into Pure Byte Code.
+         */
+        private void toPBC() {
+        //    boolean prev = false;
+        //    boolean init = true;
+            for (Vector<bitPlaneBlock> vec : data) {
+                for (bitPlaneBlock p_block : vec) {
+                    /*
+                    for (int i = 0; i < BIT_IN_BP; i++) {
+                        for(int j = BP_DEPTH-1; j>=0; j--) {
+                            BitSet cur_block = p_block.block[j];
+                            // Start of iteration
+                            if (init) {
                                 prev = cur_block.get(i);
+                                init = false;
                             }
+                            cur_block.set(i, cur_block.get(i) ^ prev);
+                            prev = cur_block.get(i);
+                        }
+                    }
+                    */
+                    for (int i=1; i<BP_DEPTH; i++) {
+                        BitSet cur_block = p_block.block[i];
+                        BitSet prev = p_block.block[i-1];
+                        for (int j=0; j<BIT_IN_BP; j++) {
+                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
                         }
                     }
                 }
             }
+        }
 
         @Override
         public String toString() {
@@ -768,36 +794,20 @@ public class BpcsStega {
         String key = new String("OCEANOGRAPHY");
         double threshold = 0.3;
 
-//        Path in = Paths.get("D:\\Apocyanletter.png");
-//        readImage(in);
-//        assert bufferedImagesEqual(imgOriginal, imgModified);
-//        parseImgToBitPlanes();
-//        String original = imgBitPlanes.toString();
-//        parseBitPlanesToImg();
-//        assert bufferedImagesEqual(imgOriginal, imgModified);
-//        parseImgToBitPlanes();
-//        String next = imgBitPlanes.toString();
-//        assert original.equals(next);
-//        parseBitPlanesToImg();
-//        assert bufferedImagesEqual(imgOriginal, imgModified);
-//        Path out = Paths.get("D:\\Apocyanletter2.png");
-//        writeImage(out);
-//
-//        in = Paths.get("D:\\Apocyanletter2.png");
-//        readImage(in);
-//        assert bufferedImagesEqual(imgOriginal, imgModified);
-//        parseImgToBitPlanes();
-//        next = imgBitPlanes.toString();
-//        assert original.equals(next);
-//        parseBitPlanesToImg();
-//        assert bufferedImagesEqual(imgOriginal, imgModified);
-//        out = Paths.get("D:\\Apocyanletter3.png");
-//        writeImage(out);
-
-
-        Path in = Paths.get("D:\\Apocyanletter.png");
+        Path in = Paths.get("D:\\imagePNG1.png");
         readImage(in);
         parseImgToBitPlanes();
+     /*   
+        BitSet x = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
+        imgBitPlanes.toCGC();
+     
+        
+        BitSet y = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
+        imgBitPlanes.toPBC();
+        
+        
+        BitSet z = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
+     */   
         embedMessage(preprocessInput(message, threshold), threshold);
         message = postprocessOutput(extractMessage(threshold));
         System.out.println("Message extracted 1 : " + new String(message));
@@ -810,14 +820,14 @@ public class BpcsStega {
         parseBitPlanesToImg();
         System.out.println("PSNR after extracting before save  : " + calculatePSNR());
 
-        Path out = Paths.get("D:\\Apocyanletter2.png");
+        Path out = Paths.get("D:\\imagePNG2.png");
         writeImage(out);
 
 
-        in = Paths.get("D:\\Apocyanletter2.png");
+        in = Paths.get("D:\\imagePNG2.png");
         readImage(in);
         parseImgToBitPlanes();
-        message = postprocessOutput(extractMessage(threshold));
+        message = postprocessOutput(extractMessage(threshold)); // Error here, all bitset changed from beforce save-loading
         System.out.println("Message extracted 3 : " + new String(message));
         System.out.println("PSNR after extracting immediately : " + calculatePSNR());
         
@@ -833,7 +843,26 @@ public class BpcsStega {
         parseBitPlanesToImg();
         System.out.println("PSNR after extracting before save  : " + calculatePSNR());
         
-        out = Paths.get("D:\\Apocyanletter3.png");
+        out = Paths.get("D:\\imagePNG3.png");
+        writeImage(out);
+        
+        in = Paths.get("D:\\image1.bmp");
+        readImage(in);
+        parseImgToBitPlanes();
+     /*   
+        embedMessage(preprocessInput(message2, threshold), threshold, generateSeed(key));
+        message = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        System.out.println("Message extracted 6 : " + new String(message));
+        parseBitPlanesToImg();
+        System.out.println("PSNR after embedding with key : " + calculatePSNR());
+        
+        parseImgToBitPlanes();
+        message = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        System.out.println("Message extracted 7 : " + new String(message));
+        parseBitPlanesToImg();
+        System.out.println("PSNR after extracting before save  : " + calculatePSNR());
+    */    
+        out = Paths.get("D:\\image2.bmp");
         writeImage(out);
     }
 
