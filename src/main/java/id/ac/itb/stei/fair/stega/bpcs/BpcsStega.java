@@ -312,6 +312,9 @@ public class BpcsStega {
         assert in_bp_len * BYTE_IN_BP < MAX_INPUT_BYTE;
         int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
         int bp_len = 1 + in_bp_len + cm_bp_len;
+            
+        assert bp_len > 0 && bp_len < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * BP_DEPTH :
+                    "There is no message in image";  
 
         BitSet[] bs = new BitSet[bp_len];
 
@@ -382,6 +385,9 @@ public class BpcsStega {
         int cm_bp_len = (int)Math.ceil((in_bp_len / (double)BIT_IN_BP));
         int bp_len = 1 + in_bp_len + cm_bp_len;
 
+        assert bp_len > 0 && bp_len < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * BP_DEPTH :
+                    "There is no message in image";  
+        
         BitSet[] bs = new BitSet[bp_len];
 
         bs[0] = byte_len;
