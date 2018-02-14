@@ -621,31 +621,31 @@ public class BpcsStega {
          * Convert bit encoding in imageBitPlanes into Canonical Gray Code.
          */
         private void toCGC() {
-        //    boolean prev = false;
-        //    boolean init = true;
+            boolean prev = false;
+            boolean init = true;
             for (Vector<bitPlaneBlock> vec : data) {
                 for (bitPlaneBlock p_block : vec) {
-                    /*
                     for (int i = 0; i < BIT_IN_BP; i++) {
                         for(int j = BP_DEPTH-1; j>=0; j--) {
                             BitSet cur_block = p_block.block[j];
+                            BitSet block_cpy = cur_block;
                             // Start of iteration
                             if (init) {
-                                prev = cur_block.get(i);
+                                prev = block_cpy.get(i);
                                 init = false;
+                                continue;
                             }
-                            cur_block.set(i, prev ^ cur_block.get(i));
-                            prev = cur_block.get(i);
+                            cur_block.set(i, prev ^ block_cpy.get(i));
+                            prev = block_cpy.get(i);
                         }
                     }
-                    */
-                    for (int i=BP_DEPTH-1; i>0; i--) {
-                        BitSet cur_block = p_block.block[i];
-                        BitSet prev = p_block.block[i-1];
-                        for (int j=0; j < BIT_IN_BP; j++) {
-                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
-                        }
-                    }
+//                    for (int i=BP_DEPTH-1; i>0; i--) {
+//                        BitSet cur_block = p_block.block[i];
+//                        BitSet prev = p_block.block[i-1];
+//                        for (int j=0; j < BIT_IN_BP; j++) {
+//                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
+//                        }
+//                    }
                 }
             }
         }
@@ -654,11 +654,10 @@ public class BpcsStega {
          * Convert bit encoding in imageBitPlanes into Pure Byte Code.
          */
         private void toPBC() {
-        //    boolean prev = false;
-        //    boolean init = true;
+            boolean prev = false;
+            boolean init = true;
             for (Vector<bitPlaneBlock> vec : data) {
                 for (bitPlaneBlock p_block : vec) {
-                    /*
                     for (int i = 0; i < BIT_IN_BP; i++) {
                         for(int j = BP_DEPTH-1; j>=0; j--) {
                             BitSet cur_block = p_block.block[j];
@@ -666,19 +665,19 @@ public class BpcsStega {
                             if (init) {
                                 prev = cur_block.get(i);
                                 init = false;
+                                continue;
                             }
                             cur_block.set(i, cur_block.get(i) ^ prev);
                             prev = cur_block.get(i);
                         }
                     }
-                    */
-                    for (int i=1; i<BP_DEPTH; i++) {
-                        BitSet cur_block = p_block.block[i];
-                        BitSet prev = p_block.block[i-1];
-                        for (int j=0; j<BIT_IN_BP; j++) {
-                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
-                        }
-                    }
+//                    for (int i=1; i<BP_DEPTH; i++) {
+//                        BitSet cur_block = p_block.block[i];
+//                        BitSet prev = p_block.block[i-1];
+//                        for (int j=0; j<BIT_IN_BP; j++) {
+//                            cur_block.set(j, prev.get(j) ^ cur_block.get(j));
+//                        }
+//                    }
                 }
             }
         }
@@ -798,7 +797,7 @@ public class BpcsStega {
         Path in = Paths.get("D:\\imagePNG1.png");
         readImage(in);
         parseImgToBitPlanes();
-     /*   
+        
         BitSet x = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
         imgBitPlanes.toCGC();
      
@@ -808,7 +807,7 @@ public class BpcsStega {
         
         
         BitSet z = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
-     */   
+        
         embedMessage(preprocessInput(message, threshold), threshold);
         message = postprocessOutput(extractMessage(threshold));
         System.out.println("Message extracted 1 : " + new String(message));
