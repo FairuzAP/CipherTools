@@ -210,7 +210,7 @@ public class BpcsStega {
     
     private void embedMessage(BitSet[] in, double threshold) {
         assert imgBitPlanes != null;
-        imgBitPlanes.toCGC();
+        //imgBitPlanes.toCGC();
 
         int indexBitSet = 0;
 
@@ -232,7 +232,7 @@ public class BpcsStega {
 
         assert indexBitSet == in.length : "image is too small for message. If it is intended, delete this assertion";
         
-        imgBitPlanes.toPBC();
+        //imgBitPlanes.toPBC();
     }
 
     private long generateSeed(String key) {
@@ -280,7 +280,7 @@ public class BpcsStega {
     
     private BitSet[] extractMessage(double threshold) {
         assert imgBitPlanes != null;
-        imgBitPlanes.toCGC();
+        //imgBitPlanes.toCGC();
 
         BitSet byte_len = null;
 
@@ -338,11 +338,10 @@ public class BpcsStega {
 
         assert indexBitSet == bs.length : "There is no message in image";
 
-        imgBitPlanes.toPBC();
+        //imgBitPlanes.toPBC();
         return bs;
     }
 
-    
     private BitSet[] extractMessage(double threshold, long seed) {
         assert imgBitPlanes != null;
 
@@ -433,7 +432,8 @@ public class BpcsStega {
             Iterator<ImageTypeSpecifier> imageTypes = reader.getImageTypes(0);
             while(imageTypes.hasNext()) {
                 ImageTypeSpecifier next = imageTypes.next();
-                if (next.getColorModel().getColorSpace().getType() == ColorSpace.TYPE_RGB) {
+                int type = next.getColorModel().getColorSpace().getType();
+                if (type == ColorSpace.TYPE_RGB) {
                     rgbType = next;
                     break;
                 }
@@ -444,12 +444,13 @@ public class BpcsStega {
             readParam.setDestinationType(rgbType);
 
             imgOriginal = reader.read(0, readParam);
-            imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+            if("bmp".equalsIgnoreCase(reader.getFormatName())) {
+                imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_INT_RGB);
+            } else {
+                imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            }
             imgModified.getGraphics().drawImage(imgOriginal, 0, 0, null);
-            /*
-            imgOriginal = new BufferedImage(imgModified.getWidth(), imgModified.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-            imgOriginal.getGraphics().drawImage(imgModified, 0, 0, null);
-*/
+
             assert bufferedImagesEqual(imgOriginal, imgModified);
             writer = ImageIO.getImageWriter(reader);
             reader.dispose();
@@ -791,7 +792,7 @@ public class BpcsStega {
     public BpcsStega() {
         byte[] message = "ABCDEFGHIJKLMNOPQRSTUVWXYZABC".getBytes();
         byte[] message2 = "another message entirely".getBytes();
-        String key = new String("OCEANOGRAPHY");
+        String key = "OCEANOGRAPHY";
         double threshold = 0.3;
 
         Path in = Paths.get("D:\\imagePNG1.png");
@@ -849,7 +850,7 @@ public class BpcsStega {
         in = Paths.get("D:\\image1.bmp");
         readImage(in);
         parseImgToBitPlanes();
-     /*   
+        
         embedMessage(preprocessInput(message2, threshold), threshold, generateSeed(key));
         message = postprocessOutput(extractMessage(threshold, generateSeed(key)));
         System.out.println("Message extracted 6 : " + new String(message));
@@ -861,7 +862,7 @@ public class BpcsStega {
         System.out.println("Message extracted 7 : " + new String(message));
         parseBitPlanesToImg();
         System.out.println("PSNR after extracting before save  : " + calculatePSNR());
-    */    
+        
         out = Paths.get("D:\\image2.bmp");
         writeImage(out);
     }
@@ -871,7 +872,9 @@ public class BpcsStega {
         if (img1.getWidth() == img2.getWidth() && img1.getHeight() == img2.getHeight()) {
             for (int x = 0; x < img1.getWidth(); x++) {
                 for (int y = 0; y < img1.getHeight(); y++) {
-                    if (img1.getRGB(x, y) != img2.getRGB(x, y))
+                    int rgb1 = img1.getRGB(x, y);
+                    int rgb2 = img2.getRGB(x, y);
+                    if (rgb1 != rgb2)
                         return false;
                 }
             }
