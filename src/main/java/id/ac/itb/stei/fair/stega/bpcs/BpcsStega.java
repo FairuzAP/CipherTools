@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
@@ -417,8 +419,9 @@ public class BpcsStega {
      * contains modified image, if you want to modify image, modify this
      */
     private BufferedImage imgModified = null;
-    private ImageWriter writer = null;
 
+    private String formatName = null;
+    
     private boolean readImage(Path fileIn) {
         try (ImageInputStream input = ImageIO.createImageInputStream(fileIn.toFile())){
             ImageReader reader = ImageIO.getImageReaders(input).next();
@@ -426,14 +429,16 @@ public class BpcsStega {
 
             assert "png".equalsIgnoreCase(reader.getFormatName()) ||
                 "bmp".equalsIgnoreCase(reader.getFormatName());
-
-            // Check that image is encoded and loaded in RGB/RGBA format
+            
+            formatName = reader.getFormatName().toLowerCase();
+            
+            // Check that image is encoded and loaded in RGB/RGBA/GRAYSCALE format
             ImageTypeSpecifier rgbType = null;
             Iterator<ImageTypeSpecifier> imageTypes = reader.getImageTypes(0);
             while(imageTypes.hasNext()) {
                 ImageTypeSpecifier next = imageTypes.next();
                 int type = next.getColorModel().getColorSpace().getType();
-                if (type == ColorSpace.TYPE_RGB) {
+                if (type == ColorSpace.TYPE_RGB || type == ColorSpace.TYPE_GRAY) {
                     rgbType = next;
                     break;
                 }
@@ -443,16 +448,13 @@ public class BpcsStega {
             ImageReadParam readParam = reader.getDefaultReadParam();
             readParam.setDestinationType(rgbType);
 
-            imgOriginal = reader.read(0, readParam);
-            if("bmp".equalsIgnoreCase(reader.getFormatName())) {
-                imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_INT_RGB);
-            } else {
-                imgModified = new BufferedImage(imgOriginal.getWidth(), imgOriginal.getHeight(), BufferedImage.TYPE_INT_ARGB);
-            }
-            imgModified.getGraphics().drawImage(imgOriginal, 0, 0, null);
+            BufferedImage temp = reader.read(0, readParam);
+            imgModified = new BufferedImage(temp.getWidth(), temp.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            imgModified.getGraphics().drawImage(temp, 0, 0, null);
+            imgOriginal = new BufferedImage(temp.getWidth(), temp.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            imgOriginal.getGraphics().drawImage(temp, 0, 0, null);
 
             assert bufferedImagesEqual(imgOriginal, imgModified);
-            writer = ImageIO.getImageWriter(reader);
             reader.dispose();
             return true;
 
@@ -464,19 +466,13 @@ public class BpcsStega {
     }
 
     private boolean writeImage(Path fileOut) {
-        assert imgModified != null && writer != null;
-        try (ImageOutputStream output = ImageIO.createImageOutputStream(fileOut.toFile())) {
-            writer.setOutput(output);
-            writer.write(imgModified);
+        assert imgModified != null;
+        try {
+            ImageIO.write(imgModified, formatName, fileOut.toFile());
             return true;
-
-        } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
+        } catch (IOException ex) {
+            Logger.getLogger(BpcsStega.class.getName()).log(Level.SEVERE, null, ex);
             return false;
-
-        } finally {
-            writer.dispose();
-            imgModified = null; writer = null;
         }
     }
 
@@ -797,17 +793,7 @@ public class BpcsStega {
         Path in = Paths.get("D:\\imagePNG1.png");
         readImage(in);
         parseImgToBitPlanes();
-        
-        BitSet x = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
-        imgBitPlanes.toCGC();
-     
-        
-        BitSet y = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
-        imgBitPlanes.toPBC();
-        
-        
-        BitSet z = (BitSet) imgBitPlanes.getBitPlane(0, 1, 2).clone();
-        
+
         embedMessage(preprocessInput(message, threshold), threshold);
         message = postprocessOutput(extractMessage(threshold));
         System.out.println("Message extracted 1 : " + new String(message));
