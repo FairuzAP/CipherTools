@@ -420,6 +420,8 @@ public class BpcsStega {
      */
     private BufferedImage imgModified = null;
 
+    private static final String bmp_format = "BMP";
+    private static final String png_format = "PNG";
     private String formatName = null;
     
     private boolean readImage(Path fileIn) {
@@ -430,7 +432,7 @@ public class BpcsStega {
             assert "png".equalsIgnoreCase(reader.getFormatName()) ||
                 "bmp".equalsIgnoreCase(reader.getFormatName());
             
-            formatName = reader.getFormatName().toLowerCase();
+            formatName = reader.getFormatName().toUpperCase();
             
             // Check that image is encoded and loaded in RGB/RGBA/GRAYSCALE format
             ImageTypeSpecifier rgbType = null;
@@ -449,9 +451,14 @@ public class BpcsStega {
             readParam.setDestinationType(rgbType);
 
             BufferedImage temp = reader.read(0, readParam);
-            imgModified = new BufferedImage(temp.getWidth(), temp.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            int type = BufferedImage.TYPE_INT_ARGB;
+            if(formatName == null ? bmp_format == null : formatName.equals(bmp_format)) {
+                type = BufferedImage.TYPE_INT_RGB;
+            }
+            
+            imgModified = new BufferedImage(temp.getWidth(), temp.getHeight(), type);
             imgModified.getGraphics().drawImage(temp, 0, 0, null);
-            imgOriginal = new BufferedImage(temp.getWidth(), temp.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            imgOriginal = new BufferedImage(temp.getWidth(), temp.getHeight(), type);
             imgOriginal.getGraphics().drawImage(temp, 0, 0, null);
 
             assert bufferedImagesEqual(imgOriginal, imgModified);
