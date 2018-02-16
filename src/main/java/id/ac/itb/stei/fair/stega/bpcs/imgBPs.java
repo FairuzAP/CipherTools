@@ -153,12 +153,31 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Canonical Gray Code.
      */
     public void toCGC() {
-        for (Vector<BPBlocks> vec : data) {
-            for (BPBlocks p_block : vec) {
-                for (int i=BP_DEPTH-1; i>0; i--) {
-                    BitSet cur_block = p_block.block[i];
-                    BitSet prev = p_block.block[i-1];
-                    cur_block.xor(prev);
+//        for (Vector<BPBlocks> vec : data) {
+//            for (BPBlocks p_block : vec) {
+//                for (int i=BP_DEPTH-1; i>0; i--) {
+//                    BitSet cur_block = p_block.block[i];
+//                    BitSet prev = p_block.block[i-1];
+//                    cur_block.xor(prev);
+//                }
+//            }
+//        }
+        boolean init = true;
+        boolean curr;
+        boolean prev = false;
+        for (int p = 0; p < data.size(); p++) {
+            for (int q = 0; q < data.get(p).size(); q++) {
+                for (int i = 0; i < BIT_IN_BP; i++) {
+                    for (int j = BP_DEPTH - 1; j > 0; j--) {
+                        if (init) {
+                            prev = data.get(p).get(q).block[j].get(i);
+                            init = false;
+                            continue;
+                        }
+                        curr = data.get(p).get(q).block[j].get(i);
+                        data.get(p).get(q).block[j].set(i, prev ^ curr);
+                        prev = curr;
+                    }
                 }
             }
         }
@@ -168,12 +187,30 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Pure Byte Code.
      */
     public void toPBC() {
-        for (Vector<BPBlocks> vec : data) {
-            for (BPBlocks p_block : vec) {
-                for (int i=1; i<BP_DEPTH; i++) {
-                    BitSet cur_block = p_block.block[i];
-                    BitSet prev = p_block.block[i-1];
-                    cur_block.xor(prev);
+//        for (Vector<BPBlocks> vec : data) {
+//            for (BPBlocks p_block : vec) {
+//                for (int i=1; i<BP_DEPTH; i++) {
+//                    BitSet cur_block = p_block.block[i];
+//                    BitSet prev = p_block.block[i-1];
+//                    cur_block.xor(prev);
+//                }
+//            }
+//        }
+        boolean init = true;
+        boolean curr;
+        boolean prev = false;
+        for (int p = 0; p < data.size(); p++) {
+            for (int q = 0; q < data.get(p).size(); q++) {
+                for (int i = 0; i < BIT_IN_BP; i++) {
+                    for (int j = BP_DEPTH - 1; j > 0; j--) {
+                        if (init) {
+                            prev = data.get(p).get(q).block[j].get(i);
+                            init = false;
+                            continue;
+                        }
+                        data.get(p).get(q).block[j].set(i, data.get(p).get(q).block[j].get(i) ^ prev);
+                        prev = data.get(p).get(q).block[j].get(i);
+                    }
                 }
             }
         }
