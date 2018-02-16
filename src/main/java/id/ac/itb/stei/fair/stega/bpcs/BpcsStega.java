@@ -27,7 +27,7 @@ import javax.imageio.stream.ImageOutputStream;
  *
  * @author USER
  */
-public class BpcsStega {
+public final class BpcsStega {
 
     private static final String bmp_format = "BMP";
     private static final String png_format = "PNG";
@@ -599,8 +599,9 @@ public class BpcsStega {
         byte[] output;
         String key = "OCEANOGRAPHY";
         double threshold = 0.3;
-
-        Path in = Paths.get("D:\\imagePNG1.png");
+        Path in, out;
+        
+        in = Paths.get("D:\\imagePNG1.png");
         readImage(in);
         parseImgToBitPlanes();
         embedMessage(preprocessInput(message, threshold), threshold);
@@ -610,7 +611,7 @@ public class BpcsStega {
         System.out.println("Message extracted   : " + new String(output));
         System.out.println("PSNR                : " + calculatePSNR());
         System.out.println();
-        Path out = Paths.get("D:\\imagePNG2.png");
+        out = Paths.get("D:\\imagePNG2.png");
         writeImage(out);
 
         in = Paths.get("D:\\imagePNG2.png");

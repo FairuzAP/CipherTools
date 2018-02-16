@@ -49,12 +49,12 @@ public class imgBPs {
      */
     private class BPBlocks {
         
-        private final BitSet[] block;
+        private final Vector<BitSet> block;
 
         public BPBlocks() {
-            this.block = new BitSet[BP_DEPTH];
-            for(int i=0; i<block.length; i++) {
-                block[i] = new BitSet(BIT_IN_BP);
+            this.block = new Vector<>(BP_DEPTH);
+            for(int i=0; i<block.capacity(); i++) {
+                block.add(new BitSet(BIT_IN_BP));
             }
         }
 
@@ -62,7 +62,7 @@ public class imgBPs {
             assert x<BP_LENGTH && x>=0 && y<BP_LENGTH && y>=0;
             for(int i=0; i<BP_DEPTH; i++) {
                 if((color & 1) == 1) {
-                    block[i].set(x*BP_LENGTH + y);
+                    block.get(i).set(x*BP_LENGTH + y);
                 }
                 color >>>= 1;
             }
@@ -72,7 +72,7 @@ public class imgBPs {
             int color = 0;
             for(int i=BP_DEPTH-1; i>=0; i--) {
                 color <<= 1;
-                if(block[i].get(x*BP_LENGTH + y)) {
+                if(block.get(i).get(x*BP_LENGTH + y)) {
                     color |= 1;
                 }
             }
@@ -81,11 +81,11 @@ public class imgBPs {
 
         public BitSet getBitPlane(int depth) {
             assert depth>=0 && depth<BP_DEPTH;
-            return block[depth];
+            return block.get(depth);
         }
         public void setBitPlane(BitSet bs, int depth) {
             assert depth>=0 && depth<BP_DEPTH;
-            block[depth] = bs;
+            block.set(depth, bs);
         }
     }
 
@@ -170,12 +170,12 @@ public class imgBPs {
                 for (int i = 0; i < BIT_IN_BP; i++) {
                     for (int j = BP_DEPTH - 1; j > 0; j--) {
                         if (init) {
-                            prev = data.get(p).get(q).block[j].get(i);
+                            prev = data.get(p).get(q).block.get(j).get(i);
                             init = false;
                             continue;
                         }
-                        curr = data.get(p).get(q).block[j].get(i);
-                        data.get(p).get(q).block[j].set(i, prev ^ curr);
+                        curr = data.get(p).get(q).block.get(j).get(i);
+                        data.get(p).get(q).block.get(j).set(i, prev ^ curr);
                         prev = curr;
                     }
                 }
@@ -204,12 +204,12 @@ public class imgBPs {
                 for (int i = 0; i < BIT_IN_BP; i++) {
                     for (int j = BP_DEPTH - 1; j > 0; j--) {
                         if (init) {
-                            prev = data.get(p).get(q).block[j].get(i);
+                            prev = data.get(p).get(q).block.get(j).get(i);
                             init = false;
                             continue;
                         }
-                        data.get(p).get(q).block[j].set(i, data.get(p).get(q).block[j].get(i) ^ prev);
-                        prev = data.get(p).get(q).block[j].get(i);
+                        data.get(p).get(q).block.get(j).set(i, data.get(p).get(q).block.get(j).get(i) ^ prev);
+                        prev = data.get(p).get(q).block.get(j).get(i);
                     }
                 }
             }
