@@ -514,7 +514,7 @@ public final class BpcsStega {
         
         BitSet[] bs = new BitSet[bp_len];
 
-        bs[0] = byte_len;
+        bs[0] = (BitSet) byte_len.clone();
 
         int indexBitSet = 1;
 
@@ -530,7 +530,7 @@ public final class BpcsStega {
 
             double cs = countComplexity(bp);
             if (cs >= threshold) {
-                bs[indexBitSet] = bp;
+                bs[indexBitSet] = (BitSet) bp.clone();
                 indexBitSet++;
             }
             i++;
@@ -584,7 +584,7 @@ public final class BpcsStega {
 
         rms = Math.sqrt((double)diff/(double)(maxWidth*maxHeight));
 
-        return 20 * Math.log10(255/rms);
+        return 20 * Math.log10((1 << imgBPs.BIT_IN_COLOR)-1/rms);
     }
     
     
@@ -593,7 +593,7 @@ public final class BpcsStega {
      */
     public BpcsStega() {
         
-        useCGC = false;
+        useCGC = true;
         
         byte[] message = "ABCDEFGHIJKLMNOPQRSTUVWXYZABCABCDEFGHIJKLMNOPQRSTUVWXYZABC".getBytes();
         byte[] output;

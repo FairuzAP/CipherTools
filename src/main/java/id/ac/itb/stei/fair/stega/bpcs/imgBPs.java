@@ -25,6 +25,7 @@ public class imgBPs {
     public static final int BYTE_IN_BP = 8;
     public static final int BIT_IN_BP = BIT_IN_BYTE * BYTE_IN_BP;
     public static final int BP_BIT_SIDE_LEN = 8;
+    public static final int BIT_IN_COLOR = 8;
     
     /**
      * 2D MATRIX INDEXING (The number are printed 2d array)
@@ -153,30 +154,19 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Canonical Gray Code.
      */
     public void toCGC() {
-//        for (Vector<BPBlocks> vec : data) {
-//            for (BPBlocks p_block : vec) {
-//                for (int i=BP_DEPTH-1; i>0; i--) {
-//                    BitSet cur_block = p_block.block[i];
-//                    BitSet prev = p_block.block[i-1];
-//                    cur_block.xor(prev);
-//                }
-//            }
-//        }
-        boolean init = true;
         boolean curr;
         boolean prev = false;
         for (int p = 0; p < data.size(); p++) {
             for (int q = 0; q < data.get(p).size(); q++) {
                 for (int i = 0; i < BIT_IN_BP; i++) {
-                    for (int j = BP_DEPTH - 1; j > 0; j--) {
-                        if (init) {
-                            prev = data.get(p).get(q).block.get(j).get(i);
-                            init = false;
-                            continue;
+                    for (int j = 0; j < BP_DEPTH/BIT_IN_COLOR; j++) {
+                        int current_lsb = BIT_IN_COLOR * j;
+                        int current_msb = BIT_IN_COLOR * (j+1) - 1;
+                        for (int k=current_lsb; k <= current_msb-1; k++) {
+                            curr = data.get(p).get(q).block.get(k).get(i);
+                            prev = data.get(p).get(q).block.get(k + 1).get(i);
+                            data.get(p).get(q).block.get(k).set(i, prev ^ curr);
                         }
-                        curr = data.get(p).get(q).block.get(j).get(i);
-                        data.get(p).get(q).block.get(j).set(i, prev ^ curr);
-                        prev = curr;
                     }
                 }
             }
@@ -187,29 +177,20 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Pure Byte Code.
      */
     public void toPBC() {
-//        for (Vector<BPBlocks> vec : data) {
-//            for (BPBlocks p_block : vec) {
-//                for (int i=1; i<BP_DEPTH; i++) {
-//                    BitSet cur_block = p_block.block[i];
-//                    BitSet prev = p_block.block[i-1];
-//                    cur_block.xor(prev);
-//                }
-//            }
-//        }
-        boolean init = true;
         boolean curr;
         boolean prev = false;
+        
         for (int p = 0; p < data.size(); p++) {
             for (int q = 0; q < data.get(p).size(); q++) {
                 for (int i = 0; i < BIT_IN_BP; i++) {
-                    for (int j = BP_DEPTH - 1; j > 0; j--) {
-                        if (init) {
-                            prev = data.get(p).get(q).block.get(j).get(i);
-                            init = false;
-                            continue;
+                    for (int j = 0; j < BP_DEPTH/BIT_IN_COLOR; j++) {
+                        int current_lsb = BIT_IN_COLOR * j;
+                        int current_msb = BIT_IN_COLOR * (j+1) - 1;
+                        for (int k=current_msb-1; k >= current_lsb; k--) {
+                            curr = data.get(p).get(q).block.get(k).get(i);
+                            prev = data.get(p).get(q).block.get(k + 1).get(i);
+                            data.get(p).get(q).block.get(k).set(i, prev ^ curr);
                         }
-                        data.get(p).get(q).block.get(j).set(i, data.get(p).get(q).block.get(j).get(i) ^ prev);
-                        prev = data.get(p).get(q).block.get(j).get(i);
                     }
                 }
             }
