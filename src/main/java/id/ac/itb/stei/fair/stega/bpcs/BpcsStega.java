@@ -12,16 +12,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.BitSet;
 import java.util.Iterator;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 
 /**
  *
@@ -577,7 +574,6 @@ public final class BpcsStega {
                 for (int k=0;k<channelSize;k++) {
                     int currentOriColor = (originalColor >>> (imgBPs.BIT_IN_COLOR*k)) & channelConst;
                     int currentModColor = (modifiedColor >>> (imgBPs.BIT_IN_COLOR*k)) & channelConst;
-
                     diff += Math.pow(currentModColor - currentOriColor, 2);
                 }
             }
