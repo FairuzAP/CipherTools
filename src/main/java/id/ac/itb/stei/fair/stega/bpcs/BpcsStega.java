@@ -553,12 +553,8 @@ public final class BpcsStega {
         int maxWidth = imgOriginal.getWidth();
         int maxHeight = imgOriginal.getHeight();
         
-        int channelSize = 4;
-        double max = 0xffffffffL;
-        if(bmp_format.equalsIgnoreCase(formatName)) {
-            channelSize = 3;
-            max = 0xffffffL;
-        }
+        int channelSize = imgBPs.BP_DEPTH/imgBPs.BIT_IN_COLOR;
+        double max = 0xffL;
         
         double rms;
         int diff = 0;
@@ -579,7 +575,7 @@ public final class BpcsStega {
             }
         }
 
-        rms = Math.sqrt((double)diff/(double)(maxWidth*maxHeight));
+        rms = Math.sqrt((double)diff/(double)(maxWidth*maxHeight*channelSize));
         return 20 * Math.log10(max/rms);
     }
     
