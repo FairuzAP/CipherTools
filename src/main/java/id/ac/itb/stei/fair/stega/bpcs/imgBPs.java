@@ -154,19 +154,13 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Canonical Gray Code.
      */
     public void toCGC() {
-        boolean curr;
-        boolean prev = false;
         for (int p = 0; p < data.size(); p++) {
             for (int q = 0; q < data.get(p).size(); q++) {
-                for (int i = 0; i < BIT_IN_BP; i++) {
-                    for (int j = 0; j < BP_DEPTH/BIT_IN_COLOR; j++) {
-                        int current_lsb = BIT_IN_COLOR * j;
-                        int current_msb = BIT_IN_COLOR * (j+1) - 1;
-                        for (int k=current_lsb; k <= current_msb-1; k++) {
-                            curr = data.get(p).get(q).block.get(k).get(i);
-                            prev = data.get(p).get(q).block.get(k + 1).get(i);
-                            data.get(p).get(q).block.get(k).set(i, prev ^ curr);
-                        }
+                for (int i = 0; i < BP_DEPTH/BIT_IN_COLOR; i++) {
+                    int current_lsb = BIT_IN_COLOR * i;
+                    int current_msb = BIT_IN_COLOR * (i+1) - 1;
+                    for (int j=current_lsb; j <= current_msb-1; j++) {
+                        data.get(p).get(q).block.get(j).xor(data.get(p).get(q).block.get(j+1));
                     }
                 }
             }
@@ -177,20 +171,13 @@ public class imgBPs {
      * Convert bit encoding in imgBPs into Pure Byte Code.
      */
     public void toPBC() {
-        boolean curr;
-        boolean prev = false;
-        
         for (int p = 0; p < data.size(); p++) {
             for (int q = 0; q < data.get(p).size(); q++) {
-                for (int i = 0; i < BIT_IN_BP; i++) {
-                    for (int j = 0; j < BP_DEPTH/BIT_IN_COLOR; j++) {
-                        int current_lsb = BIT_IN_COLOR * j;
-                        int current_msb = BIT_IN_COLOR * (j+1) - 1;
-                        for (int k=current_msb-1; k >= current_lsb; k--) {
-                            curr = data.get(p).get(q).block.get(k).get(i);
-                            prev = data.get(p).get(q).block.get(k + 1).get(i);
-                            data.get(p).get(q).block.get(k).set(i, prev ^ curr);
-                        }
+                for (int i = 0; i < BP_DEPTH/BIT_IN_COLOR; i++) {
+                    int current_lsb = BIT_IN_COLOR * i;
+                    int current_msb = BIT_IN_COLOR * (i+1) - 1;
+                    for (int j=current_msb-1; j >= current_lsb; j--) {
+                        data.get(p).get(q).block.get(j).xor(data.get(p).get(q).block.get(j+1));
                     }
                 }
             }
