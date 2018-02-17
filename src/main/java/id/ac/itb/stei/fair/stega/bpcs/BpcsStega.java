@@ -574,8 +574,8 @@ public final class BpcsStega {
 
                 // take each color (ARGB), get the difference, sum it all
                 for (int k=0;k<4;k++) {
-                    int currentOriColor = (originalColor >> (8*k)) & 0xff;
-                    int currentModColor = (modifiedColor >> (8*k)) & 0xff;
+                    int currentOriColor = (originalColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
+                    int currentModColor = (modifiedColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
 
                     diff += Math.pow(currentModColor - currentOriColor, 2);
                 }
