@@ -573,7 +573,7 @@ public final class BpcsStega {
                 }
 
                 // take each color (ARGB), get the difference, sum it all
-                for (int k=0;k<4;k++) {
+                for (int k=0;k<imgBPs.BP_DEPTH/imgBPs.BIT_IN_COLOR;k++) {
                     int currentOriColor = (originalColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
                     int currentModColor = (modifiedColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
 
