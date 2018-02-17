@@ -553,29 +553,30 @@ public final class BpcsStega {
     private double calculatePSNR() {
         assert imgOriginal != null && imgModified != null;
 
-        int maxWidth = Math.max(imgOriginal.getWidth(),imgModified.getWidth());
-        int maxHeight = Math.max(imgOriginal.getHeight(),imgModified.getHeight());
-
+        int maxWidth = imgOriginal.getWidth();
+        int maxHeight = imgOriginal.getHeight();
+        
+        int channelSize = 4;
+        double max = 0xffffffffL;
+        if(bmp_format.equalsIgnoreCase(formatName)) {
+            channelSize = 3;
+            max = 0xffffffL;
+        }
+        
         double rms;
         int diff = 0;
-
+        int channelConst = 0x000000ff;
+        
         for(int i=0; i<maxWidth; i++) {
             for(int j=0; j<maxHeight; j++) {
-                int originalColor = 0;
-                int modifiedColor = 0;
-
-                if ((i < imgOriginal.getWidth()) && (j < imgOriginal.getHeight())) {
-                    originalColor = imgOriginal.getRGB(i, j);
-                }
-
-                if ((i < imgModified.getWidth()) && (j < imgModified.getHeight())) {
-                    modifiedColor = imgModified.getRGB(i, j);
-                }
+                int originalColor = imgOriginal.getRGB(i, j);
+                int modifiedColor = imgModified.getRGB(i, j);
 
                 // take each color (ARGB), get the difference, sum it all
-                for (int k=0;k<4;k++) {
-                    int currentOriColor = (originalColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
-                    int currentModColor = (modifiedColor >> (imgBPs.BIT_IN_COLOR*k)) & (1 << imgBPs.BIT_IN_COLOR);
+                // For BMP format only consider the 24 LSB,
+                for (int k=0;k<channelSize;k++) {
+                    int currentOriColor = (originalColor >>> (imgBPs.BIT_IN_COLOR*k)) & channelConst;
+                    int currentModColor = (modifiedColor >>> (imgBPs.BIT_IN_COLOR*k)) & channelConst;
 
                     diff += Math.pow(currentModColor - currentOriColor, 2);
                 }
@@ -583,8 +584,7 @@ public final class BpcsStega {
         }
 
         rms = Math.sqrt((double)diff/(double)(maxWidth*maxHeight));
-
-        return 20 * Math.log10((1 << imgBPs.BIT_IN_COLOR)-1/rms);
+        return 20 * Math.log10(max/rms);
     }
     
     
@@ -595,7 +595,8 @@ public final class BpcsStega {
         
         useCGC = true;
         
-        byte[] message = "To be fair, you have to have a very high IQ to understand Rick and Morty. The humour is extremely subtle, and without a solid grasp of theoretical physics most of the jokes will go over a typical viewer's head. There's also Rick's nihilistic outlook, which is deftly woven into his characterisation- his personal philosophy draws heavily from Narodnaya Volya literature, for instance. The fans understand this stuff; they have the intellectual capacity to truly appreciate the depths of these jokes, to realise that they're not just funny- they say something deep about LIFE. As a consequence people who dislike Rick & Morty truly ARE idiots- of course they wouldn't appreciate, for instance, the humour in Rick's existential catchphrase \"Wubba Lubba Dub Dub,\" which itself is a cryptic reference to Turgenev's Russian epic Fathers and Sons. I'm smirking right now just imagining one of those addlepated simpletons scratching their heads in confusion as Dan Harmon's genius wit unfolds itself on their television screens. What fools.. how I pity them. \nAnd yes, by the way, i DO have a Rick & Morty tattoo. And no, you cannot see it. It's for the ladies' eyes only- and even then they have to demonstrate that they're within 5 IQ points of my own (preferably lower) beforehand. Nothin personnel kid".getBytes();
+        String msg = "To be fair, you have to have a very high IQ to understand Rick and Morty. The humour is extremely subtle, and without a solid grasp of theoretical physics most of the jokes will go over a typical viewer's head. There's also Rick's nihilistic outlook, which is deftly woven into his characterisation- his personal philosophy draws heavily from Narodnaya Volya literature, for instance. The fans understand this stuff; they have the intellectual capacity to truly appreciate the depths of these jokes, to realise that they're not just funny- they say something deep about LIFE. As a consequence people who dislike Rick & Morty truly ARE idiots- of course they wouldn't appreciate, for instance, the humour in Rick's existential catchphrase \"Wubba Lubba Dub Dub,\" which itself is a cryptic reference to Turgenev's Russian epic Fathers and Sons. I'm smirking right now just imagining one of those addlepated simpletons scratching their heads in confusion as Dan Harmon's genius wit unfolds itself on their television screens. What fools.. how I pity them. \nAnd yes, by the way, i DO have a Rick & Morty tattoo. And no, you cannot see it. It's for the ladies' eyes only- and even then they have to demonstrate that they're within 5 IQ points of my own (preferably lower) beforehand. Nothin personnel kid";
+        byte[] message = msg.getBytes();
         byte[] output;
         String key = "OCEANOGRAPHY";
         double threshold = 0.3;
