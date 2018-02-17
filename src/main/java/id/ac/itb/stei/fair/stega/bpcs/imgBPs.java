@@ -39,7 +39,7 @@ public class imgBPs {
      * i ~ X ~ width
      * j ~ Y ~ height
      */
-    public static final int BP_DEPTH = 32;
+    public static final int BP_DEPTH = 27;
     public static final int BP_LENGTH = 8;
     
     /**
@@ -61,11 +61,12 @@ public class imgBPs {
 
         public void setColor(int x, int y, int color) {
             assert x<BP_LENGTH && x>=0 && y<BP_LENGTH && y>=0;
+            color &= 0x00ffffff;
             for(int i=0; i<BP_DEPTH; i++) {
                 if((color & 1) == 1) {
                     block.get(i).set(x*BP_LENGTH + y);
                 }
-                color >>>= 1;
+            color >>>= 1;
             }
             assert color == 0;
         }

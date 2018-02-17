@@ -265,10 +265,7 @@ public final class BpcsStega {
             readParam.setDestinationType(rgbType);
 
             BufferedImage temp = reader.read(0, readParam);
-            int type = BufferedImage.TYPE_INT_ARGB;
-            if(formatName == null ? bmp_format == null : formatName.equals(bmp_format)) {
-                type = BufferedImage.TYPE_INT_RGB;
-            }
+            int type = BufferedImage.TYPE_INT_RGB;
             
             imgModified = new BufferedImage(temp.getWidth(), temp.getHeight(), type);
             imgModified.getGraphics().drawImage(temp, 0, 0, null);
@@ -307,7 +304,7 @@ public final class BpcsStega {
                 if(imgBitPlanes.inRange(i, j)) {
                     int color = imgModified.getRGB(i, j);
                     imgBitPlanes.setColor(i, j, color);
-                    assert imgBitPlanes.getColor(i, j) == color;
+                    assert imgBitPlanes.getColor(i, j) == (color & 0x00ffffff);
                 }
             }
         }
@@ -325,7 +322,7 @@ public final class BpcsStega {
             for(int j=0; j<imgBitPlanes.getBlockHeight()*imgBPs.BP_LENGTH; j++) {
                 int color = imgBitPlanes.getColor(i, j);
                 imgModified.setRGB(i, j, color);
-                assert imgModified.getRGB(i, j) == color;
+                assert (imgModified.getRGB(i, j) & 0x00ffffff) == color;
             }
         }
         return true;
