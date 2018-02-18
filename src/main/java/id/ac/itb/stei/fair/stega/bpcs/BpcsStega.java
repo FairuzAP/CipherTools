@@ -437,29 +437,44 @@ public final class BpcsStega {
         assert imgBitPlanes != null;
         if(useCGC) imgBitPlanes.toCGC();
                
-        PosRandomizer rng = new PosRandomizer(seed, imgBitPlanes.getBlockWidth(), 
-                                                    imgBitPlanes.getBlockHeight(), 
-                                                    imgBPs.BP_DEPTH);
+        PosRandomizer rng = new PosRandomizer(seed);
+//        
+//        int indexBitSet = 0;
+//        
+//        int i=0;
+//        while (indexBitSet < in.length) {
+//            rng.next();
+//            int currentX = rng.nextX;
+//            int currentY = rng.nextY;
+//            int currentDepth = rng.nextDepth;
+//            
+//            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
+//
+//            double cs = countComplexity(bp);
+//            if (cs >= threshold) {
+//                imgBitPlanes.setBitPlane(in[indexBitSet], currentX, currentY, currentDepth);
+//                indexBitSet++;
+//            }    
+//            i++;
+//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
+//                    "Image is too small for message";          
+//        }
         
-        int indexBitSet = 0;
+        // Generate noisy bitplane list
+        for (int x = 0; x < imgBitPlanes.getBlockWidth(); x++) {
+            for (int y = 0; y < imgBitPlanes.getBlockHeight(); y++) {
+                for (int depth = 0; depth < imgBPs.BP_DEPTH; depth++) {
+                    BitSet bp = imgBitPlanes.getBitPlane(x, y, depth);
+                    if (countComplexity(bp) >= threshold) rng.addNoisy(x, y, depth);
+                }
+            }
+        }
         
-        int i=0;
-        while (indexBitSet < in.length) {
+        // Embed message in random bitplanes based on noisy list
+        assert in.length > rng.getSize() : "Image is too small for message";
+        for (BitSet i : in) {
             rng.next();
-            int currentX = rng.nextX;
-            int currentY = rng.nextY;
-            int currentDepth = rng.nextDepth;
-            
-            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
-
-            double cs = countComplexity(bp);
-            if (cs >= threshold) {
-                imgBitPlanes.setBitPlane(in[indexBitSet], currentX, currentY, currentDepth);
-                indexBitSet++;
-            }    
-            i++;
-            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-                    "Image is too small for message";          
+            imgBitPlanes.setBitPlane(i, rng.nextX, rng.nextY, rng.nextDepth);
         }
  
         if(useCGC) imgBitPlanes.toPBC();
@@ -468,33 +483,48 @@ public final class BpcsStega {
         assert imgBitPlanes != null;
         if(useCGC) imgBitPlanes.toCGC();
 
-        BitSet byte_len = null;
+        BitSet byte_len = null; 
+        
+        PosRandomizer rng = new PosRandomizer(seed);
+                
+//        int firstX, firstY, firstDepth;
+//        
+//        int i=0;
+//        while (byte_len == null) {
+//            rng.next();
+//            firstX = rng.nextX;
+//            firstY = rng.nextY;
+//            firstDepth = rng.nextDepth;
+//            
+//            BitSet bp = imgBitPlanes.getBitPlane(firstX, firstY, firstDepth);
+//
+//            if (countComplexity(bp) >= threshold) {
+//                byte_len = bp;
+//            }
+//            i++;
+//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
+//                    "There is no message in image";   
+//        }
 
-        int firstX, firstY, firstDepth;
-        
-        
-        PosRandomizer rng = new PosRandomizer(seed, imgBitPlanes.getBlockWidth(), 
-                                                    imgBitPlanes.getBlockHeight(), 
-                                                    imgBPs.BP_DEPTH);
-        
-        int i=0;
-        while (byte_len == null) {
-            rng.next();
-            firstX = rng.nextX;
-            firstY = rng.nextY;
-            firstDepth = rng.nextDepth;
-            
-            BitSet bp = imgBitPlanes.getBitPlane(firstX, firstY, firstDepth);
-
-            if (countComplexity(bp) >= threshold) {
-                byte_len = bp;
+        // Generate noisy bitplane list
+        for (int x = 0; x < imgBitPlanes.getBlockWidth(); x++) {
+            for (int y = 0; y < imgBitPlanes.getBlockHeight(); y++) {
+                for (int depth = 0; depth < imgBPs.BP_DEPTH; depth++) {
+                    BitSet bp = imgBitPlanes.getBitPlane(x, y, depth);
+                    if (countComplexity(bp) >= threshold) rng.addNoisy(x, y, depth);
+                }
             }
-            i++;
-            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-                    "There is no message in image";   
         }
+        
+        // Check first bitplane to determine if there is a message in the image
+        rng.next();
+        BitSet bp = imgBitPlanes.getBitPlane(rng.nextX, rng.nextY, rng.nextDepth);
+        if (countComplexity(bp) >= threshold) {
+            byte_len = bp;
+        }
+        assert byte_len != null : "There is no message in image";
 
-        assert byte_len != null;
+//        assert byte_len != null;
         byte_len.xor(CHESS_BOARD);
         int in_byte_len = (int) byte_len.toLongArray()[0];
         byte_len.xor(CHESS_BOARD);
@@ -510,26 +540,34 @@ public final class BpcsStega {
 
         bs[0] = (BitSet) byte_len.clone();
 
-        int indexBitSet = 1;
-
-        i=0;
-        while (indexBitSet < bs.length) {
+//        int indexBitSet = 1;
+//
+//        int i=0;
+//        while (indexBitSet < bs.length) {
+//        
+//            rng.next();
+//            int currentX = rng.nextX;
+//            int currentY = rng.nextY;
+//            int currentDepth = rng.nextDepth;
+//            
+//            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
+//            
+//            double cs = countComplexity(bp);
+//            if (cs >= threshold) {
+//                bs[indexBitSet] = (BitSet) bp.clone();
+//                indexBitSet++;
+//            }
+//            i++;
+//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
+//                    "There is no message in image";   
+//        }
         
+        // Extract message in random bitplanes based on noisy list
+        assert bs.length > rng.getSize() : "There is no message in image";
+        for (int i = 1; i < bs.length; i++) {
             rng.next();
-            int currentX = rng.nextX;
-            int currentY = rng.nextY;
-            int currentDepth = rng.nextDepth;
-            
-            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
-
-            double cs = countComplexity(bp);
-            if (cs >= threshold) {
-                bs[indexBitSet] = (BitSet) bp.clone();
-                indexBitSet++;
-            }
-            i++;
-            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-                    "There is no message in image";   
+            bp = imgBitPlanes.getBitPlane(rng.nextX, rng.nextY, rng.nextDepth);
+            bs[i] = (BitSet) bp.clone();
         }
 
         if(useCGC) imgBitPlanes.toPBC();

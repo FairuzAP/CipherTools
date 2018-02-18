@@ -6,9 +6,9 @@
 package id.ac.itb.stei.fair.stega.bpcs;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Stream;
 
 /**
  * Random unique (x,y,depth) generator. 
@@ -24,12 +24,11 @@ import java.util.Random;
 public class PosRandomizer {
     
     private final Random rng;
-    private final int maxDepth;
-    private final int xmax;
-    private final int ymax;
     
-    /** Mapping x and y to a list of depth already generated */
-    private final HashMap<Integer,HashMap<Integer,HashSet<Integer>>> history;
+    /** ArrayList for x, y and depth */
+    private final ArrayList<Integer> xList;
+    private final ArrayList<Integer> yList;
+    private final ArrayList<Integer> depthList;
     
     /** The next random depth */
     public int nextDepth = 0;
@@ -42,53 +41,48 @@ public class PosRandomizer {
     
     /**
      * Generate a new random position generator with the given parameter
-     * @param seed The pseudorandom function seed
-     * @param xmax X coord max value 
-     * @param ymax Y coord max value 
-     * @param maxDepth Depth max value 
+     * @param seed The pseudorandom function seed 
      */
-    public PosRandomizer(long seed, int xmax, int ymax, int maxDepth) {
-	rng= new SecureRandom();
+    public PosRandomizer(long seed) {
+	rng = new SecureRandom();
 	rng.setSeed(seed);
 	
-	this.maxDepth = maxDepth;
-	this.xmax = xmax; 
-	this.ymax = ymax; 
-	
-	history = new HashMap<>();
-    }
-    
-    private boolean checkDupl(int x, int y, int depth) {
-	boolean unique = true;
-	if(!history.containsKey(x)) {
-	    history.put(x, new HashMap<>());
-	}
-	if(!history.get(x).containsKey(y)) {
-	    history.get(x).put(y, new HashSet<>());
-	}
-	if(!history.get(x).get(y).contains(depth)) {
-	    history.get(x).get(y).add(depth);
-	} else {
-	    unique = false;
-	}
-	return unique;
+	xList = new ArrayList<>();
+        yList = new ArrayList<>();
+        depthList = new ArrayList<>();
     }
     
     /**
      * Generate the next unique (nextDepth, nextX, nextY)
      */
     public void next() {
-	nextX = rng.nextInt(xmax);
-	nextY = rng.nextInt(ymax);
-	nextDepth = rng.nextInt(maxDepth);
-	int iter = 1;
-	while(!checkDupl(nextX, nextY, nextDepth)) {
-	    nextX = rng.nextInt(xmax);
-	    nextY = rng.nextInt(ymax);
-	    nextDepth = rng.nextInt(maxDepth);
-	    iter++;
-	    assert iter <= nextX * nextY * nextDepth * 2;
-	}
+        assert Stream.of(xList.size(), yList.size(), depthList.size()).distinct().count() == 1;
+        int nextBP = rng.nextInt(xList.size());
+        
+        nextX = xList.get(nextBP);
+        nextY = yList.get(nextBP);
+        nextDepth = depthList.get(nextBP);
+        
+        xList.remove(nextBP);
+        yList.remove(nextBP);
+        depthList.remove(nextBP);
     }
     
+    /**
+     * Generate noisy bitplane list
+     * @param x
+     * @param y
+     * @param depth
+     */
+    public void addNoisy (int x, int y, int depth) {
+        xList.add(x);
+        yList.add(y);
+        depthList.add(depth);
+        assert Stream.of(xList.size(), yList.size(), depthList.size()).distinct().count() == 1;
+    }
+    
+    public int getSize () {
+        assert Stream.of(xList.size(), yList.size(), depthList.size()).distinct().count() == 1;
+        return xList.size();
+    }
 }
