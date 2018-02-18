@@ -471,7 +471,7 @@ public final class BpcsStega {
         }
         
         // Embed message in random bitplanes based on noisy list
-        assert in.length > rng.getSize() : "Image is too small for message";
+        assert in.length < rng.getSize() : "Image is too small for message";
         for (BitSet i : in) {
             rng.next();
             imgBitPlanes.setBitPlane(i, rng.nextX, rng.nextY, rng.nextDepth);
@@ -563,7 +563,7 @@ public final class BpcsStega {
 //        }
         
         // Extract message in random bitplanes based on noisy list
-        assert bs.length > rng.getSize() : "There is no message in image";
+        assert bs.length < rng.getSize() : "There is no message in image";
         for (int i = 1; i < bs.length; i++) {
             rng.next();
             bp = imgBitPlanes.getBitPlane(rng.nextX, rng.nextY, rng.nextDepth);
