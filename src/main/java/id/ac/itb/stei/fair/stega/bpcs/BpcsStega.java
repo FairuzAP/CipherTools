@@ -26,8 +26,8 @@ import javax.imageio.stream.ImageInputStream;
  */
 public final class BpcsStega {
 
-    private static final String bmp_format = "BMP";
-    private static final String png_format = "PNG";
+    private static final String BMP_FORMAT = "BMP";
+    private static final String PNG_FORMAT = "PNG";
 
     private static final double EPSILON = 0.001;
     private static final int MAX_INPUT_BYTE = Integer.MAX_VALUE;
@@ -87,9 +87,12 @@ public final class BpcsStega {
      * The last 'in_bp_len' bitset contains the message in byte array
      */
     public static BitSet[] preprocessInput(byte[] in, double threshold) {
+        int bit_in_bp = (int) (imgBPs.BIT_IN_BP - Math.ceil((double)imgBPs.BIT_IN_BP * threshold));
+        assert bit_in_bp > 0 : "Threshold too high";
+        
         int in_bp_len = (int)Math.ceil((double)in.length / (double)imgBPs.BYTE_IN_BP);
         assert in_bp_len * imgBPs.BYTE_IN_BP < MAX_INPUT_BYTE;
-        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)imgBPs.BIT_IN_BP));
+        int cm_bp_len = (int)Math.ceil(((double)in_bp_len / (double)bit_in_bp));
         int bp_len = 1 + in_bp_len + cm_bp_len;
 
         BitSet res[] = new BitSet[bp_len];
@@ -114,14 +117,14 @@ public final class BpcsStega {
         idx = 1;
         for(int i=0; i<cm_bp_len; i++) {
 
-            // Each iteration map the next 64 message BitSet into the next conjugate mapping bitset
+            // Each iteration map the next bit_in_bp message BitSet into the next conjugate mapping bitset
             BitSet next = new BitSet(imgBPs.BIT_IN_BP);
-            for(int j=0; j<imgBPs.BIT_IN_BP; j++) {
-                if(i*imgBPs.BIT_IN_BP+j>=in_bp_len) break;
+            for(int j=0; j<bit_in_bp; j++) {
+                if(i*bit_in_bp+j>=in_bp_len) break;
 
                 // If a message BitSet need to be conjugated, set the respective conjugate map bit,
                 // Also conjugate the message BitSet itself
-                int next_in_idx = 1+cm_bp_len+(i*imgBPs.BIT_IN_BP+j);
+                int next_in_idx = 1+cm_bp_len+(i*bit_in_bp+j);
                 double curr_cxty = countComplexity(res[next_in_idx]);
                 if(curr_cxty < threshold) {
                     next.set(j);
@@ -135,6 +138,7 @@ public final class BpcsStega {
         // Conjugate the message header
         for(int i=0; i<1+cm_bp_len; i++) {
             res[i].xor(CHESS_BOARD);
+            assert countComplexity(res[i]) >= threshold;
         }
 
         for(BitSet bp : res) {
@@ -145,10 +149,13 @@ public final class BpcsStega {
     }
     /**
      * @param in Array of Bitset, generated from a byte array by preprocessInput
+     * @param threshold The threshold used to encode the message in preprocessInput
      * @return The data contained in the given BitSet array
      */
-    public static byte[] postprocessOutput(BitSet[] in) {
-
+    public static byte[] postprocessOutput(BitSet[] in, double threshold) {
+        int bit_in_bp = (int) (imgBPs.BIT_IN_BP - Math.ceil((double)imgBPs.BIT_IN_BP * threshold));
+        assert bit_in_bp > 0 : "Threshold too high";
+        
         // Conjugate the message size header
         in[0].xor(CHESS_BOARD);
         int in_byte_len = (int) in[0].toLongArray()[0];
@@ -156,7 +163,7 @@ public final class BpcsStega {
 
         int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)imgBPs.BYTE_IN_BP);
         assert in_bp_len * imgBPs.BYTE_IN_BP < MAX_INPUT_BYTE;
-        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)imgBPs.BIT_IN_BP));
+        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)bit_in_bp));
         int bp_len = 1 + in_bp_len + cm_bp_len;
         assert bp_len == in.length;
 
@@ -201,7 +208,7 @@ public final class BpcsStega {
 
             // Increment BP index
             cm_bit_idx++;
-            if(cm_bit_idx==imgBPs.BIT_IN_BP) {
+            if(cm_bit_idx==bit_in_bp) {
                 cm_bp_idx++;
                 cm_bit_idx = 0;
             }
@@ -209,7 +216,7 @@ public final class BpcsStega {
             if(in_byte_len == 0) break;
             in_bp_idx++;
         }
-        assert (cm_bp_idx-1)*imgBPs.BIT_IN_BP+cm_bit_idx == bp_len-(1+cm_bp_len);
+        assert (cm_bp_idx-1)*bit_in_bp+cm_bit_idx == bp_len-(1+cm_bp_len);
         assert in_byte_len == 0;
 
         // Conjugate the ConjugateMapping
@@ -355,6 +362,9 @@ public final class BpcsStega {
         if(useCGC) imgBitPlanes.toPBC();
     }
     public BitSet[] extractMessage(double threshold) {
+        int bit_in_bp = (int) (imgBPs.BIT_IN_BP - Math.ceil((double)imgBPs.BIT_IN_BP * threshold));
+        assert bit_in_bp > 0 : "Threshold too high";
+        
         assert imgBitPlanes != null;
         if(useCGC) imgBitPlanes.toCGC();
 
@@ -384,7 +394,7 @@ public final class BpcsStega {
         byte_len.xor(CHESS_BOARD);
         int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)imgBPs.BYTE_IN_BP);
         assert in_bp_len * imgBPs.BYTE_IN_BP < MAX_INPUT_BYTE;
-        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)imgBPs.BIT_IN_BP));
+        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)bit_in_bp));
         int bp_len = 1 + in_bp_len + cm_bp_len;
             
         assert bp_len > 0 && bp_len < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH :
@@ -438,27 +448,6 @@ public final class BpcsStega {
         if(useCGC) imgBitPlanes.toCGC();
                
         PosRandomizer rng = new PosRandomizer(seed);
-//        
-//        int indexBitSet = 0;
-//        
-//        int i=0;
-//        while (indexBitSet < in.length) {
-//            rng.next();
-//            int currentX = rng.nextX;
-//            int currentY = rng.nextY;
-//            int currentDepth = rng.nextDepth;
-//            
-//            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
-//
-//            double cs = countComplexity(bp);
-//            if (cs >= threshold) {
-//                imgBitPlanes.setBitPlane(in[indexBitSet], currentX, currentY, currentDepth);
-//                indexBitSet++;
-//            }    
-//            i++;
-//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-//                    "Image is too small for message";          
-//        }
         
         // Generate noisy bitplane list
         for (int x = 0; x < imgBitPlanes.getBlockWidth(); x++) {
@@ -480,31 +469,15 @@ public final class BpcsStega {
         if(useCGC) imgBitPlanes.toPBC();
     }
     public BitSet[] extractMessage(double threshold, long seed) {
+        int bit_in_bp = (int) (imgBPs.BIT_IN_BP - Math.ceil((double)imgBPs.BIT_IN_BP * threshold));
+        assert bit_in_bp > 0 : "Threshold too high";
+        
         assert imgBitPlanes != null;
         if(useCGC) imgBitPlanes.toCGC();
 
         BitSet byte_len = null; 
         
         PosRandomizer rng = new PosRandomizer(seed);
-                
-//        int firstX, firstY, firstDepth;
-//        
-//        int i=0;
-//        while (byte_len == null) {
-//            rng.next();
-//            firstX = rng.nextX;
-//            firstY = rng.nextY;
-//            firstDepth = rng.nextDepth;
-//            
-//            BitSet bp = imgBitPlanes.getBitPlane(firstX, firstY, firstDepth);
-//
-//            if (countComplexity(bp) >= threshold) {
-//                byte_len = bp;
-//            }
-//            i++;
-//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-//                    "There is no message in image";   
-//        }
 
         // Generate noisy bitplane list
         for (int x = 0; x < imgBitPlanes.getBlockWidth(); x++) {
@@ -530,7 +503,7 @@ public final class BpcsStega {
         byte_len.xor(CHESS_BOARD);
         int in_bp_len = (int)Math.ceil((double)in_byte_len / (double)imgBPs.BYTE_IN_BP);
         assert in_bp_len * imgBPs.BYTE_IN_BP < MAX_INPUT_BYTE;
-        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)imgBPs.BIT_IN_BP));
+        int cm_bp_len = (int)Math.ceil((in_bp_len / (double)bit_in_bp));
         int bp_len = 1 + in_bp_len + cm_bp_len;
 
         assert bp_len > 0 && bp_len < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH :
@@ -539,28 +512,6 @@ public final class BpcsStega {
         BitSet[] bs = new BitSet[bp_len];
 
         bs[0] = (BitSet) byte_len.clone();
-
-//        int indexBitSet = 1;
-//
-//        int i=0;
-//        while (indexBitSet < bs.length) {
-//        
-//            rng.next();
-//            int currentX = rng.nextX;
-//            int currentY = rng.nextY;
-//            int currentDepth = rng.nextDepth;
-//            
-//            BitSet bp = imgBitPlanes.getBitPlane(currentX, currentY, currentDepth);
-//            
-//            double cs = countComplexity(bp);
-//            if (cs >= threshold) {
-//                bs[indexBitSet] = (BitSet) bp.clone();
-//                indexBitSet++;
-//            }
-//            i++;
-//            assert i < imgBitPlanes.getBlockHeight() * imgBitPlanes.getBlockWidth() * imgBPs.BP_DEPTH * 2 :
-//                    "There is no message in image";   
-//        }
         
         // Extract message in random bitplanes based on noisy list
         assert bs.length < rng.getSize() : "There is no message in image";
@@ -633,7 +584,7 @@ public final class BpcsStega {
         readImage(in);
         parseImgToBitPlanes();
         embedMessage(preprocessInput(message, threshold), threshold);
-        output = postprocessOutput(extractMessage(threshold));
+        output = postprocessOutput(extractMessage(threshold), threshold);
         parseBitPlanesToImg();
         System.out.println("PNG Embed/Extract Testing (Sequential)");
         System.out.println("Message extracted   : " + new String(output));
@@ -645,13 +596,13 @@ public final class BpcsStega {
         in = Paths.get("D:\\imagePNG2.png");
         readImage(in);
         parseImgToBitPlanes();
-        output = postprocessOutput(extractMessage(threshold)); 
+        output = postprocessOutput(extractMessage(threshold), threshold); 
         System.out.println("PNG Save/Load/Extract Testing (Sequential)");
         System.out.println("Message extracted   : " + new String(output));
         System.out.println();
         
         embedMessage(preprocessInput(message, threshold), threshold, generateSeed(key));
-        output = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        output = postprocessOutput(extractMessage(threshold, generateSeed(key)), threshold);
         parseBitPlanesToImg();
         System.out.println("PNG Embed/Extract Testing (Pseudorandom)");
         System.out.println("Message extracted   : " + new String(output));
@@ -663,7 +614,7 @@ public final class BpcsStega {
         in = Paths.get("D:\\imagePNG3.png");
         readImage(in);        
         parseImgToBitPlanes();
-        output = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        output = postprocessOutput(extractMessage(threshold, generateSeed(key)), threshold);
         parseBitPlanesToImg();
         System.out.println("PNG Save/Load/Extract Testing (Pseudorandom)");
         System.out.println("Message extracted   : " + new String(output));
@@ -674,7 +625,7 @@ public final class BpcsStega {
         readImage(in);
         parseImgToBitPlanes();
         embedMessage(preprocessInput(message, threshold), threshold);
-        output = postprocessOutput(extractMessage(threshold));
+        output = postprocessOutput(extractMessage(threshold), threshold);
         parseBitPlanesToImg();
         System.out.println("BMP Embed/Extract Testing (Sequential)");
         System.out.println("Message extracted   : " + new String(output));
@@ -686,13 +637,13 @@ public final class BpcsStega {
         in = Paths.get("D:\\image2.bmp");
         readImage(in);
         parseImgToBitPlanes();
-        output = postprocessOutput(extractMessage(threshold)); 
+        output = postprocessOutput(extractMessage(threshold), threshold); 
         System.out.println("BMP Save/Load/Extract Testing (Sequential)");
         System.out.println("Message extracted   : " + new String(output));
         System.out.println();
         
         embedMessage(preprocessInput(message, threshold), threshold, generateSeed(key));
-        output = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        output = postprocessOutput(extractMessage(threshold, generateSeed(key)), threshold);
         parseBitPlanesToImg();
         System.out.println("BMP Embed/Extract Testing (Pseudorandom)");
         System.out.println("Message extracted   : " + new String(output));
@@ -704,7 +655,7 @@ public final class BpcsStega {
         in = Paths.get("D:\\image3.bmp");
         readImage(in);        
         parseImgToBitPlanes();
-        output = postprocessOutput(extractMessage(threshold, generateSeed(key)));
+        output = postprocessOutput(extractMessage(threshold, generateSeed(key)), threshold);
         parseBitPlanesToImg();
         System.out.println("BMP Save/Load/Extract Testing (Pseudorandom)");
         System.out.println("Message extracted   : " + new String(output));
