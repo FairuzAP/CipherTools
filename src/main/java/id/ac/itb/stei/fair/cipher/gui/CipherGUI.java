@@ -1084,6 +1084,7 @@ public class CipherGUI extends javax.swing.JFrame {
         MessageEmbeddingLabel2.setText("Message Embedding");
 
         StegoOptionButtonGroup.add(SequentialRadioButton2);
+        SequentialRadioButton2.setSelected(true);
         SequentialRadioButton2.setText("Sequential");
 
         StegoOptionButtonGroup.add(RandomRadioButton2);
@@ -1299,6 +1300,11 @@ public class CipherGUI extends javax.swing.JFrame {
         });
 
         ExtractButton.setText("Extract");
+        ExtractButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ExtractButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout EncryptDecryptPanel2Layout = new javax.swing.GroupLayout(EncryptDecryptPanel2);
         EncryptDecryptPanel2.setLayout(EncryptDecryptPanel2Layout);
@@ -1676,8 +1682,56 @@ public class CipherGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_ImageInputInfoActionPerformed
 
     private void EmbedtButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EmbedtButtonActionPerformed
-
+        if (!"".equals(StegaImageInputPath)) {
+            BpcsStega BPCS = new BpcsStega(CGCOptionCheckBox2.isSelected());
+            Path in, out;
+            byte[] output;
+            String message = Utils.ReadTextFile(StegaMsgInputPath);
+            String key = KeyTextArea2.getText();
+            double threshold = Double.valueOf(TresholdTextField2.getText());
+            
+            if(EncryptOptionCheckBox2.isSelected()) {
+                VigenereStandard vig = new VigenereStandard(key);
+                message = vig.Encipher(message);
+            }
+            byte[] input = message.getBytes();
+            
+            in = Paths.get(StegaImageInputPath);
+            BPCS.readImage(in);
+            BPCS.parseImgToBitPlanes();
+            if(SequentialRadioButton2.isSelected()) {
+                BPCS.embedMessage(BpcsStega.preprocessInput(input, threshold), threshold);
+            } else {
+                BPCS.embedMessage(BpcsStega.preprocessInput(input, threshold), threshold, BPCS.generateSeed(key));
+            }
+            BPCS.parseBitPlanesToImg();
+            out = Paths.get(StegaImageOutputPath);
+            BPCS.writeImage(out);
+        }
     }//GEN-LAST:event_EmbedtButtonActionPerformed
+
+    private void ExtractButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExtractButtonActionPerformed
+        if (!"".equals(StegaImageInputPath)) {
+            BpcsStega BPCS = new BpcsStega(CGCOptionCheckBox2.isSelected());
+            Path in, out;
+            byte[] output;
+            String key = KeyTextArea2.getText();
+            double threshold = Double.valueOf(TresholdTextField2.getText());
+            
+            in = Paths.get(StegaImageInputPath);
+            BPCS.readImage(in);
+            BPCS.parseImgToBitPlanes();
+            if(SequentialRadioButton2.isSelected()) {
+                output = BpcsStega.postprocessOutput(BPCS.extractMessage(threshold), threshold);
+            } else {
+                output = BpcsStega.postprocessOutput(BPCS.extractMessage(threshold, BPCS.generateSeed(key)), threshold);
+            }
+            BPCS.parseBitPlanesToImg();
+            Utils.SaveTextFile(StegaMsgOutputPath, new String(output));
+            out = Paths.get(StegaImageOutputPath);
+            BPCS.writeImage(out);
+        }
+    }//GEN-LAST:event_ExtractButtonActionPerformed
     
     private String VigextFileInputPath = "";
     private String VigextFileOutputPath = "";
@@ -1686,8 +1740,6 @@ public class CipherGUI extends javax.swing.JFrame {
     private String StegaImageOutputPath = "";
     private String StegaMsgInputPath = "";
     private String StegaMsgOutputPath = "";
-    
-    private BpcsStega BPCS = new BpcsStega();
     
     /**
      * @param args the command line arguments

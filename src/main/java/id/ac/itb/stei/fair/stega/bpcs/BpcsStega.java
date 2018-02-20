@@ -302,8 +302,9 @@ public final class BpcsStega {
     
     /**
      * Parse the imgModified BufferedImage into the imgBitPlanes.
+     * @return 
      */
-    private boolean parseImgToBitPlanes() {
+    public boolean parseImgToBitPlanes() {
         assert imgModified != null;
         imgBitPlanes = new imgBPs(imgModified.getWidth(), imgModified.getHeight());
         for(int i=0; i<imgModified.getWidth(); i++) {
@@ -322,8 +323,9 @@ public final class BpcsStega {
      * Parse the imgBitPlanes into the imgModified BufferedImage.
      * The BufferedImage must not be null and already contain an image,
      * This function will map the changes in the BitPlane to the image.
+     * @return 
      */
-    private boolean parseBitPlanesToImg() {
+    public boolean parseBitPlanesToImg() {
         assert imgBitPlanes != null && imgModified != null;
         for(int i=0; i<imgBitPlanes.getBlockWidth()*imgBPs.BP_LENGTH; i++) {
             for(int j=0; j<imgBitPlanes.getBlockHeight()*imgBPs.BP_LENGTH; j++) {
@@ -361,6 +363,7 @@ public final class BpcsStega {
         
         if(useCGC) imgBitPlanes.toPBC();
     }
+    
     public BitSet[] extractMessage(double threshold) {
         int bit_in_bp = (int) (imgBPs.BIT_IN_BP - Math.ceil((double)imgBPs.BIT_IN_BP * threshold));
         assert bit_in_bp > 0 : "Threshold too high";
@@ -431,7 +434,7 @@ public final class BpcsStega {
         return bs;
     }
 
-    private long generateSeed(String key) {
+    public long generateSeed(String key) {
         long seed = 0;
         
         key = key.toUpperCase();
@@ -661,6 +664,10 @@ public final class BpcsStega {
         System.out.println("Message extracted   : " + new String(output));
         System.out.println();
         
+    }
+    
+    public BpcsStega (boolean CGC) {
+        useCGC = CGC;
     }
     
     // TODO Add constructor for embedding and extracting message from given image
