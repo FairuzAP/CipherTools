@@ -26,9 +26,28 @@ public class Utils {
 	}
     }
     
+    public static byte[] ReadBinaryFile(String fileName)  {
+	try {
+	    return Files.readAllBytes(Paths.get(fileName));
+	} catch (IOException ex) {
+	    Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+	    return null;
+	}
+    }
+    
     public static boolean SaveTextFile(String fileName, String content)  {
 	try {
 	    Files.write(Paths.get(fileName), content.getBytes());
+	    return true;
+	} catch (IOException ex) {
+	    Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+	    return false;
+	}
+    }
+    
+    public static boolean SaveBinaryFile(String fileName, byte[] content)  {
+	try {
+	    Files.write(Paths.get(fileName), content);
 	    return true;
 	} catch (IOException ex) {
 	    Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);

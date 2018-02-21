@@ -7,9 +7,12 @@ package id.ac.itb.stei.fair.stega.bpcs;
 
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -75,6 +78,31 @@ public final class BpcsStega {
         }
 
         return (double)res / MAX_CXTY;
+    }
+    
+    public static byte[] embedFileName (byte[] in, String filename) throws IOException {
+        byte[] fname = filename.getBytes();
+        int flength = fname.length;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
+        outputStream.write(flength);
+        outputStream.write(fname);
+        outputStream.write(in);
+
+        return outputStream.toByteArray( );
+    }
+    
+    public static String extractFileName (byte[] out) {
+        byte[] b_flength = Arrays.copyOfRange(out, 0, 3);
+        int flength = ByteBuffer.wrap(b_flength).getInt();
+        byte[] b_fname = Arrays.copyOfRange(out, 4, 3 + flength);
+        String fname = new String(b_fname);
+        return fname;
+    }
+    
+    public static byte[] extractData (byte[] out) {
+        byte[] b_flength = Arrays.copyOfRange(out, 0, 3);
+        int flength = ByteBuffer.wrap(b_flength).getInt();
+        return Arrays.copyOfRange(out, 4 + flength, out.length - 1);
     }
     
     /**
@@ -536,7 +564,7 @@ public final class BpcsStega {
      * Be sure to load an image first!
      * @return PSNR between original and modified image
      */
-    private double calculatePSNR() {
+    public double calculatePSNR() {
         assert imgOriginal != null && imgModified != null;
 
         int maxWidth = imgOriginal.getWidth();

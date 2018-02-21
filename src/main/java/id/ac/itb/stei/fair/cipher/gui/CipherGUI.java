@@ -11,8 +11,11 @@ import id.ac.itb.stei.fair.cipher.classic.VigenereExtended;
 import id.ac.itb.stei.fair.cipher.classic.VigenereStandard;
 import id.ac.itb.stei.fair.stega.bpcs.BpcsStega;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.SwingWorker;
 
@@ -181,6 +184,7 @@ public class CipherGUI extends javax.swing.JFrame {
         StegoImagePanel4 = new javax.swing.JPanel();
         StegoImageLabel4 = new javax.swing.JLabel();
         StegoImageView4 = new javax.swing.JLabel();
+        PSNRLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -1379,20 +1383,27 @@ public class CipherGUI extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        PSNRLabel.setText("PSNR:");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(CoverImagePanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(StegoImagePanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PSNRLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(CoverImagePanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(StegoImagePanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addComponent(PSNRLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(StegoImagePanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
         javax.swing.GroupLayout StegaScrollPanelLayout = new javax.swing.GroupLayout(StegaScrollPanel);
@@ -1411,15 +1422,13 @@ public class CipherGUI extends javax.swing.JFrame {
         StegaScrollPanelLayout.setVerticalGroup(
             StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(StegaScrollPanelLayout.createSequentialGroup()
-                .addGroup(StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addGroup(StegaScrollPanelLayout.createSequentialGroup()
-                        .addComponent(InputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(OutputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(EncryptDecryptPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(InputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(OutputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(EncryptDecryptPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(28, Short.MAX_VALUE))
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         StegaScrollPane.setViewportView(StegaScrollPanel);
@@ -1435,7 +1444,7 @@ public class CipherGUI extends javax.swing.JFrame {
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(StegaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 610, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(StegaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 633, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -1686,27 +1695,34 @@ public class CipherGUI extends javax.swing.JFrame {
             BpcsStega BPCS = new BpcsStega(CGCOptionCheckBox2.isSelected());
             Path in, out;
             byte[] output;
-            String message = Utils.ReadTextFile(StegaMsgInputPath);
+            byte[] message = Utils.ReadBinaryFile(StegaMsgInputPath);
             String key = KeyTextArea2.getText();
             double threshold = Double.valueOf(TresholdTextField2.getText());
             
             if(EncryptOptionCheckBox2.isSelected()) {
-                VigenereStandard vig = new VigenereStandard(key);
-                message = vig.Encipher(message);
+                String enc = new String(message);
+                VigenereExtended vig = new VigenereExtended(key);
+                enc = vig.Encipher(enc);
+                message = enc.getBytes();
             }
-            byte[] input = message.getBytes();
+            try {
+                message = BpcsStega.embedFileName(message, StegaImageInputFileName);
+            } catch (IOException ex) {
+                Logger.getLogger(CipherGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
             in = Paths.get(StegaImageInputPath);
             BPCS.readImage(in);
             BPCS.parseImgToBitPlanes();
             if(SequentialRadioButton2.isSelected()) {
-                BPCS.embedMessage(BpcsStega.preprocessInput(input, threshold), threshold);
+                BPCS.embedMessage(BpcsStega.preprocessInput(message, threshold), threshold);
             } else {
-                BPCS.embedMessage(BpcsStega.preprocessInput(input, threshold), threshold, BPCS.generateSeed(key));
+                BPCS.embedMessage(BpcsStega.preprocessInput(message, threshold), threshold, BPCS.generateSeed(key));
             }
             BPCS.parseBitPlanesToImg();
             out = Paths.get(StegaImageOutputPath);
             BPCS.writeImage(out);
+            PSNRLabel.setText("PSNR: " + String.valueOf(BPCS.calculatePSNR()));
         }
     }//GEN-LAST:event_EmbedtButtonActionPerformed
 
@@ -1727,7 +1743,15 @@ public class CipherGUI extends javax.swing.JFrame {
                 output = BpcsStega.postprocessOutput(BPCS.extractMessage(threshold, BPCS.generateSeed(key)), threshold);
             }
             BPCS.parseBitPlanesToImg();
-            Utils.SaveTextFile(StegaMsgOutputPath, new String(output));
+            String filename = BpcsStega.extractFileName(output);
+            output = BpcsStega.extractData(output);
+            if(EncryptOptionCheckBox2.isSelected()) {
+                String dec = new String(output);
+                VigenereExtended vig = new VigenereExtended(key);
+                dec = vig.Decipher(dec);
+                output = dec.getBytes();
+            }
+            Utils.SaveBinaryFile(StegaMsgOutputPath, output);
             out = Paths.get(StegaImageOutputPath);
             BPCS.writeImage(out);
         }
@@ -1794,6 +1818,7 @@ public class CipherGUI extends javax.swing.JFrame {
     private javax.swing.JPanel OptionsPanel2;
     private javax.swing.JLabel OutputLabel2;
     private javax.swing.JPanel OutputPanel2;
+    private javax.swing.JLabel PSNRLabel;
     private javax.swing.JButton PlayfairExecuteButton;
     private javax.swing.JPanel PlayfairExecutePanel;
     private javax.swing.ButtonGroup PlayfairInputButtonGroup;
