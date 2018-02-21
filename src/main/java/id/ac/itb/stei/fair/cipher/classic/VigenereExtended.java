@@ -29,6 +29,24 @@ public class VigenereExtended extends VigenereCipher{
 	SetKey(key);
     }
     
+    public byte[] Encipher(byte[] plaintext) {
+	byte[] cipherChars = new byte[plaintext.length];
+	for(int i=0; i<plaintext.length; i++) {
+	    int idx = i % encryptKey.length;
+            cipherChars[i] = (byte) MapVigenereSquare(plaintext[i], encryptKey[idx]);
+	}
+	return cipherChars;
+    }
+    
+    public byte[] Decipher(byte[] ciphertext) {
+	byte[] plainChars = new byte[ciphertext.length];
+	for(int i=0; i<ciphertext.length; i++) {
+	    int idx = i % decryptKey.length;
+            plainChars[i] = (byte) MapVigenereSquare(ciphertext[i], decryptKey[idx]);
+	}
+	return plainChars;
+    }
+    
     public boolean EnchiperFile(Path fileIn, Path fileOut) {
 	try (	
 	    InputStream in= Files.newInputStream(fileIn);
