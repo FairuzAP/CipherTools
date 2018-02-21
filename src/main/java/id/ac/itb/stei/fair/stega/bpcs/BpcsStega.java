@@ -22,6 +22,7 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -596,6 +597,13 @@ public final class BpcsStega {
         return 20 * Math.log10(max/rms);
     }
     
+    public ImageIcon getOriginalImage() {
+        return new ImageIcon(imgOriginal);
+    }
+    
+    public ImageIcon getModifiedImage() {
+        return new ImageIcon(imgModified);
+    }
     
     /**
      * Empty Constructor for testing.

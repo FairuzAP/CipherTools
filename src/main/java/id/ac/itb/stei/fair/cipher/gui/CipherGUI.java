@@ -182,8 +182,8 @@ public class CipherGUI extends javax.swing.JFrame {
         CoverImageLabel2 = new javax.swing.JLabel();
         CoverImageView2 = new javax.swing.JLabel();
         StegoImagePanel4 = new javax.swing.JPanel();
-        StegoImageLabel4 = new javax.swing.JLabel();
-        StegoImageView4 = new javax.swing.JLabel();
+        StegaImageLabel4 = new javax.swing.JLabel();
+        StegaImageView4 = new javax.swing.JLabel();
         PSNRLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -1358,7 +1358,7 @@ public class CipherGUI extends javax.swing.JFrame {
 
         StegoImagePanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        StegoImageLabel4.setText("Stego Image");
+        StegaImageLabel4.setText("Stega Image");
 
         javax.swing.GroupLayout StegoImagePanel4Layout = new javax.swing.GroupLayout(StegoImagePanel4);
         StegoImagePanel4.setLayout(StegoImagePanel4Layout);
@@ -1367,9 +1367,9 @@ public class CipherGUI extends javax.swing.JFrame {
             .addGroup(StegoImagePanel4Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(StegoImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(StegoImagePanel4Layout.createSequentialGroup()
-                        .addComponent(StegoImageLabel4)
+                        .addComponent(StegaImageLabel4)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -1377,9 +1377,9 @@ public class CipherGUI extends javax.swing.JFrame {
             StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(StegoImagePanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(StegoImageLabel4)
+                .addComponent(StegaImageLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(StegoImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
+                .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -1723,6 +1723,8 @@ public class CipherGUI extends javax.swing.JFrame {
             out = Paths.get(StegaImageOutputPath);
             BPCS.writeImage(out);
             PSNRLabel.setText("PSNR: " + String.valueOf(BPCS.calculatePSNR()));
+            CoverImageView2.setIcon(BPCS.getOriginalImage());
+            StegaImageView4.setIcon(BPCS.getModifiedImage());
         }
     }//GEN-LAST:event_EmbedtButtonActionPerformed
 
@@ -1754,6 +1756,8 @@ public class CipherGUI extends javax.swing.JFrame {
             Utils.SaveBinaryFile(StegaMsgOutputPath, output);
             out = Paths.get(StegaImageOutputPath);
             BPCS.writeImage(out);
+            CoverImageView2.setIcon(BPCS.getModifiedImage());
+            StegaImageView4.setIcon(BPCS.getOriginalImage());
         }
     }//GEN-LAST:event_ExtractButtonActionPerformed
     
@@ -1854,12 +1858,12 @@ public class CipherGUI extends javax.swing.JFrame {
     private javax.swing.JRadioButton RandomRadioButton2;
     private javax.swing.JRadioButton SequentialRadioButton2;
     private javax.swing.JFileChooser StegaFileChooser;
+    private javax.swing.JLabel StegaImageLabel4;
+    private javax.swing.JLabel StegaImageView4;
     private javax.swing.JTabbedPane StegaPanel;
     private javax.swing.JScrollPane StegaScrollPane;
     private javax.swing.JPanel StegaScrollPanel;
-    private javax.swing.JLabel StegoImageLabel4;
     private javax.swing.JPanel StegoImagePanel4;
-    private javax.swing.JLabel StegoImageView4;
     private javax.swing.ButtonGroup StegoOptionButtonGroup;
     private javax.swing.JButton TextInputButton2;
     private javax.swing.JTextField TextInputInfo2;

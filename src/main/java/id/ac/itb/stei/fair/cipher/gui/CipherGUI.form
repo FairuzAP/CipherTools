@@ -2033,9 +2033,9 @@
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="StegoImageView4" alignment="0" max="32767" attributes="0"/>
+                                      <Component id="StegaImageView4" alignment="0" max="32767" attributes="0"/>
                                       <Group type="102" alignment="0" attributes="0">
-                                          <Component id="StegoImageLabel4" min="-2" max="-2" attributes="0"/>
+                                          <Component id="StegaImageLabel4" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -2047,21 +2047,21 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="StegoImageLabel4" min="-2" max="-2" attributes="0"/>
+                                  <Component id="StegaImageLabel4" min="-2" max="-2" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="StegoImageView4" pref="233" max="32767" attributes="0"/>
+                                  <Component id="StegaImageView4" pref="233" max="32767" attributes="0"/>
                                   <EmptySpace max="-2" attributes="0"/>
                               </Group>
                           </Group>
                         </DimensionLayout>
                       </Layout>
                       <SubComponents>
-                        <Component class="javax.swing.JLabel" name="StegoImageLabel4">
+                        <Component class="javax.swing.JLabel" name="StegaImageLabel4">
                           <Properties>
-                            <Property name="text" type="java.lang.String" value="Stego Image"/>
+                            <Property name="text" type="java.lang.String" value="Stega Image"/>
                           </Properties>
                         </Component>
-                        <Component class="javax.swing.JLabel" name="StegoImageView4">
+                        <Component class="javax.swing.JLabel" name="StegaImageView4">
                         </Component>
                       </SubComponents>
                     </Container>
