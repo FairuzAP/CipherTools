@@ -164,19 +164,6 @@ public class CipherGUI extends javax.swing.JFrame {
         MessageEmbeddingLabel2 = new javax.swing.JLabel();
         SequentialRadioButton2 = new javax.swing.JRadioButton();
         RandomRadioButton2 = new javax.swing.JRadioButton();
-        OutputPanel2 = new javax.swing.JPanel();
-        OutputLabel2 = new javax.swing.JLabel();
-        ImageOutputPanel = new javax.swing.JPanel();
-        ImageOutputLabel = new javax.swing.JLabel();
-        ImageOutputButton = new javax.swing.JButton();
-        ImageOutputInfo = new javax.swing.JTextField();
-        TextOutputPanel2 = new javax.swing.JPanel();
-        TextOutputLabel2 = new javax.swing.JLabel();
-        TextOutputButton2 = new javax.swing.JButton();
-        TextOutputInfo2 = new javax.swing.JTextField();
-        EncryptDecryptPanel2 = new javax.swing.JPanel();
-        EmbedtButton = new javax.swing.JButton();
-        ExtractButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         CoverImagePanel2 = new javax.swing.JPanel();
         CoverImageLabel2 = new javax.swing.JLabel();
@@ -185,6 +172,9 @@ public class CipherGUI extends javax.swing.JFrame {
         StegaImageLabel4 = new javax.swing.JLabel();
         StegaImageView4 = new javax.swing.JLabel();
         PSNRLabel = new javax.swing.JLabel();
+        EncryptDecryptPanel2 = new javax.swing.JPanel();
+        EmbedtButton = new javax.swing.JButton();
+        ExtractButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -970,7 +960,7 @@ public class CipherGUI extends javax.swing.JFrame {
                     .addGroup(TextInputPanel2Layout.createSequentialGroup()
                         .addComponent(TextInputButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(TextInputInfo2, javax.swing.GroupLayout.DEFAULT_SIZE, 393, Short.MAX_VALUE)))
+                        .addComponent(TextInputInfo2)))
                 .addContainerGap())
         );
         TextInputPanel2Layout.setVerticalGroup(
@@ -1012,7 +1002,7 @@ public class CipherGUI extends javax.swing.JFrame {
                     .addComponent(ImageInputLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ImageInputButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
-                .addComponent(ImageInputInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 395, Short.MAX_VALUE)
+                .addComponent(ImageInputInfo)
                 .addContainerGap())
         );
         ImageInputPanelLayout.setVerticalGroup(
@@ -1040,7 +1030,7 @@ public class CipherGUI extends javax.swing.JFrame {
             .addGroup(KeyPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(KeyPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(VigextKeyScrollPane11, javax.swing.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE)
+                    .addComponent(VigextKeyScrollPane11)
                     .addGroup(KeyPanel2Layout.createSequentialGroup()
                         .addComponent(KeyLabel2)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -1101,14 +1091,10 @@ public class CipherGUI extends javax.swing.JFrame {
             .addGroup(MessageEmbeddingPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(MessageEmbeddingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(MessageEmbeddingPanel2Layout.createSequentialGroup()
-                        .addComponent(MessageEmbeddingLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(MessageEmbeddingPanel2Layout.createSequentialGroup()
-                        .addComponent(SequentialRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 4, Short.MAX_VALUE)
-                        .addComponent(RandomRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                    .addComponent(MessageEmbeddingLabel2)
+                    .addComponent(SequentialRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(RandomRadioButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         MessageEmbeddingPanel2Layout.setVerticalGroup(
             MessageEmbeddingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1116,9 +1102,9 @@ public class CipherGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(MessageEmbeddingLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(MessageEmbeddingPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(SequentialRadioButton2)
-                    .addComponent(RandomRadioButton2))
+                .addComponent(SequentialRadioButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(RandomRadioButton2)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1147,8 +1133,7 @@ public class CipherGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(CGCOptionCheckBox2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(MessageEmbeddingPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(MessageEmbeddingPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout InputPanel2Layout = new javax.swing.GroupLayout(InputPanel2);
@@ -1158,142 +1143,111 @@ public class CipherGUI extends javax.swing.JFrame {
             .addGroup(InputPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(InputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(OptionsPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(TextInputPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ImageInputPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, InputPanel2Layout.createSequentialGroup()
-                        .addGroup(InputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(InputLabel2)
-                            .addComponent(KeyPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(TresholdPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(OptionsPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 6, Short.MAX_VALUE)
+                        .addComponent(InputLabel2)
+                        .addGap(498, 498, 498))
+                    .addComponent(KeyPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(TresholdPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         InputPanel2Layout.setVerticalGroup(
             InputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(InputPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(InputLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(ImageInputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(TextInputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(InputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(InputPanel2Layout.createSequentialGroup()
-                        .addComponent(KeyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(TresholdPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(OptionsPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        OutputPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        OutputLabel2.setText("Output");
-
-        ImageOutputLabel.setText("Select Output Image");
-
-        ImageOutputButton.setText("Select");
-        ImageOutputButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                ImageOutputButtonActionPerformed(evt);
-            }
-        });
-
-        ImageOutputInfo.setEditable(false);
-        ImageOutputInfo.setText("No File Selected");
-
-        javax.swing.GroupLayout ImageOutputPanelLayout = new javax.swing.GroupLayout(ImageOutputPanel);
-        ImageOutputPanel.setLayout(ImageOutputPanelLayout);
-        ImageOutputPanelLayout.setHorizontalGroup(
-            ImageOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ImageOutputPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(ImageOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ImageOutputLabel)
-                    .addGroup(ImageOutputPanelLayout.createSequentialGroup()
-                        .addComponent(ImageOutputButton, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(ImageOutputInfo, javax.swing.GroupLayout.DEFAULT_SIZE, 387, Short.MAX_VALUE)))
-                .addGap(18, 18, 18))
-        );
-        ImageOutputPanelLayout.setVerticalGroup(
-            ImageOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(ImageOutputPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(ImageOutputLabel)
+                .addComponent(KeyPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(ImageOutputPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(ImageOutputButton)
-                    .addComponent(ImageOutputInfo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(TresholdPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(OptionsPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(56, 56, 56))
         );
 
-        TextOutputLabel2.setText("Select Text Output File");
+        CoverImagePanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
 
-        TextOutputButton2.setText("Select");
-        TextOutputButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                TextOutputButton2ActionPerformed(evt);
-            }
-        });
+        CoverImageLabel2.setText("Input Image");
 
-        TextOutputInfo2.setEditable(false);
-        TextOutputInfo2.setText("No File Selected");
-
-        javax.swing.GroupLayout TextOutputPanel2Layout = new javax.swing.GroupLayout(TextOutputPanel2);
-        TextOutputPanel2.setLayout(TextOutputPanel2Layout);
-        TextOutputPanel2Layout.setHorizontalGroup(
-            TextOutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TextOutputPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout CoverImagePanel2Layout = new javax.swing.GroupLayout(CoverImagePanel2);
+        CoverImagePanel2.setLayout(CoverImagePanel2Layout);
+        CoverImagePanel2Layout.setHorizontalGroup(
+            CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CoverImagePanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(TextOutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(TextOutputPanel2Layout.createSequentialGroup()
-                        .addComponent(TextOutputLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(TextOutputPanel2Layout.createSequentialGroup()
-                        .addComponent(TextOutputButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(TextOutputInfo2)))
+                .addGroup(CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(CoverImageView2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(CoverImagePanel2Layout.createSequentialGroup()
+                        .addComponent(CoverImageLabel2)
+                        .addGap(0, 308, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        TextOutputPanel2Layout.setVerticalGroup(
-            TextOutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(TextOutputPanel2Layout.createSequentialGroup()
+        CoverImagePanel2Layout.setVerticalGroup(
+            CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(CoverImagePanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(TextOutputLabel2)
+                .addComponent(CoverImageLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(TextOutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(TextOutputButton2)
-                    .addComponent(TextOutputInfo2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout OutputPanel2Layout = new javax.swing.GroupLayout(OutputPanel2);
-        OutputPanel2.setLayout(OutputPanel2Layout);
-        OutputPanel2Layout.setHorizontalGroup(
-            OutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(OutputPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(OutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(OutputPanel2Layout.createSequentialGroup()
-                        .addComponent(OutputLabel2)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(TextOutputPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(ImageOutputPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(CoverImageView2, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
                 .addContainerGap())
         );
-        OutputPanel2Layout.setVerticalGroup(
-            OutputPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(OutputPanel2Layout.createSequentialGroup()
+
+        StegoImagePanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+
+        StegaImageLabel4.setText("Output Image");
+
+        javax.swing.GroupLayout StegoImagePanel4Layout = new javax.swing.GroupLayout(StegoImagePanel4);
+        StegoImagePanel4.setLayout(StegoImagePanel4Layout);
+        StegoImagePanel4Layout.setHorizontalGroup(
+            StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(StegoImagePanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(OutputLabel2)
+                .addGroup(StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(StegoImagePanel4Layout.createSequentialGroup()
+                        .addComponent(StegaImageLabel4)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        StegoImagePanel4Layout.setVerticalGroup(
+            StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(StegoImagePanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(StegaImageLabel4)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ImageOutputPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, 243, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        PSNRLabel.setText("PSNR:");
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(CoverImagePanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(StegoImagePanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(PSNRLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(CoverImagePanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TextOutputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(PSNRLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(StegoImagePanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         EmbedtButton.setText("Embed");
@@ -1317,93 +1271,12 @@ public class CipherGUI extends javax.swing.JFrame {
             .addGroup(EncryptDecryptPanel2Layout.createSequentialGroup()
                 .addComponent(EmbedtButton, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ExtractButton, javax.swing.GroupLayout.PREFERRED_SIZE, 270, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addComponent(ExtractButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         EncryptDecryptPanel2Layout.setVerticalGroup(
             EncryptDecryptPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, EncryptDecryptPanel2Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(EncryptDecryptPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(EmbedtButton)
-                    .addComponent(ExtractButton)))
-        );
-
-        CoverImagePanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        CoverImageLabel2.setText("Cover Image");
-
-        javax.swing.GroupLayout CoverImagePanel2Layout = new javax.swing.GroupLayout(CoverImagePanel2);
-        CoverImagePanel2.setLayout(CoverImagePanel2Layout);
-        CoverImagePanel2Layout.setHorizontalGroup(
-            CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CoverImagePanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(CoverImageView2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(CoverImagePanel2Layout.createSequentialGroup()
-                        .addComponent(CoverImageLabel2)
-                        .addGap(0, 300, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        CoverImagePanel2Layout.setVerticalGroup(
-            CoverImagePanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(CoverImagePanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(CoverImageLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(CoverImageView2, javax.swing.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        StegoImagePanel4.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-
-        StegaImageLabel4.setText("Stega Image");
-
-        javax.swing.GroupLayout StegoImagePanel4Layout = new javax.swing.GroupLayout(StegoImagePanel4);
-        StegoImagePanel4.setLayout(StegoImagePanel4Layout);
-        StegoImagePanel4Layout.setHorizontalGroup(
-            StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(StegoImagePanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(StegoImagePanel4Layout.createSequentialGroup()
-                        .addComponent(StegaImageLabel4)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        StegoImagePanel4Layout.setVerticalGroup(
-            StegoImagePanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(StegoImagePanel4Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(StegaImageLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(StegaImageView4, javax.swing.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        PSNRLabel.setText("PSNR:");
-
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(CoverImagePanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(StegoImagePanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(PSNRLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addComponent(CoverImagePanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(PSNRLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(StegoImagePanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+            .addComponent(EmbedtButton, javax.swing.GroupLayout.DEFAULT_SIZE, 39, Short.MAX_VALUE)
+            .addComponent(ExtractButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout StegaScrollPanelLayout = new javax.swing.GroupLayout(StegaScrollPanel);
@@ -1411,24 +1284,20 @@ public class CipherGUI extends javax.swing.JFrame {
         StegaScrollPanelLayout.setHorizontalGroup(
             StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(StegaScrollPanelLayout.createSequentialGroup()
-                .addGroup(StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(InputPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(OutputPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(EncryptDecryptPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(InputPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(EncryptDecryptPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         StegaScrollPanelLayout.setVerticalGroup(
             StegaScrollPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(StegaScrollPanelLayout.createSequentialGroup()
-                .addComponent(InputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(OutputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(InputPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 506, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(EncryptDecryptPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(28, Short.MAX_VALUE))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         StegaScrollPane.setViewportView(StegaScrollPanel);
@@ -1439,7 +1308,9 @@ public class CipherGUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(StegaPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 941, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(StegaPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 951, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1636,31 +1507,6 @@ public class CipherGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_PlayfairExecuteButtonActionPerformed
 
-    private void TextOutputButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_TextOutputButton2ActionPerformed
-        int returnVal = StegaFileChooser.showOpenDialog(StegaPanel);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = StegaFileChooser.getSelectedFile();
-            StegaMsgOutputPath = file.getAbsolutePath();
-            TextOutputInfo2.setText(file.getAbsolutePath());
-        } else {
-            StegaMsgOutputPath = "";
-            TextOutputInfo2.setText("No File Selected");
-        }
-    }//GEN-LAST:event_TextOutputButton2ActionPerformed
-
-    private void ImageOutputButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ImageOutputButtonActionPerformed
-        if (StegaImageInputFileName != "") StegaFileChooser.setSelectedFile(new File(StegaImageInputFileName));
-        int returnVal = StegaFileChooser.showSaveDialog(StegaPanel);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            File file = StegaFileChooser.getSelectedFile();
-            StegaImageOutputPath = file.getAbsolutePath();
-            ImageOutputInfo.setText(file.getAbsolutePath());
-        } else {
-            StegaImageOutputPath = "";
-            ImageOutputInfo.setText("No File Selected");
-        }
-    }//GEN-LAST:event_ImageOutputButtonActionPerformed
-
     private void ImageInputButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ImageInputButtonActionPerformed
         int returnVal = StegaFileChooser.showOpenDialog(StegaPanel);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1698,13 +1544,14 @@ public class CipherGUI extends javax.swing.JFrame {
             byte[] message = Utils.ReadBinaryFile(StegaMsgInputPath);
             String key = KeyTextArea2.getText();
             double threshold = Double.valueOf(TresholdTextField2.getText());
-            
+                           
             if(EncryptOptionCheckBox2.isSelected()) {
                 String enc = new String(message);
                 VigenereExtended vig = new VigenereExtended(key);
                 enc = vig.Encipher(enc);
                 message = enc.getBytes();
             }
+            
             try {
                 message = BpcsStega.embedFileName(message, StegaImageInputFileName);
             } catch (IOException ex) {
@@ -1713,6 +1560,7 @@ public class CipherGUI extends javax.swing.JFrame {
             
             in = Paths.get(StegaImageInputPath);
             BPCS.readImage(in);
+            CoverImageView2.setIcon(BPCS.getOriginalImage());
             BPCS.parseImgToBitPlanes();
             if(SequentialRadioButton2.isSelected()) {
                 BPCS.embedMessage(BpcsStega.preprocessInput(message, threshold), threshold);
@@ -1720,10 +1568,16 @@ public class CipherGUI extends javax.swing.JFrame {
                 BPCS.embedMessage(BpcsStega.preprocessInput(message, threshold), threshold, BPCS.generateSeed(key));
             }
             BPCS.parseBitPlanesToImg();
-            out = Paths.get(StegaImageOutputPath);
-            BPCS.writeImage(out);
+            StegaFileChooser.setSelectedFile(new File(StegaImageInputFileName));
+            int returnVal = StegaFileChooser.showSaveDialog(StegaPanel);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = StegaFileChooser.getSelectedFile();
+                StegaImageOutputPath = file.getAbsolutePath();
+                out = Paths.get(StegaImageOutputPath);
+                BPCS.writeImage(out);
+                //ImageOutputInfo.setText(file.getAbsolutePath());
+            }           
             PSNRLabel.setText("PSNR: " + String.valueOf(BPCS.calculatePSNR()));
-            CoverImageView2.setIcon(BPCS.getOriginalImage());
             StegaImageView4.setIcon(BPCS.getModifiedImage());
         }
     }//GEN-LAST:event_EmbedtButtonActionPerformed
@@ -1738,6 +1592,7 @@ public class CipherGUI extends javax.swing.JFrame {
             
             in = Paths.get(StegaImageInputPath);
             BPCS.readImage(in);
+            StegaImageView4.setIcon(BPCS.getOriginalImage());
             BPCS.parseImgToBitPlanes();
             if(SequentialRadioButton2.isSelected()) {
                 output = BpcsStega.postprocessOutput(BPCS.extractMessage(threshold), threshold);
@@ -1745,19 +1600,24 @@ public class CipherGUI extends javax.swing.JFrame {
                 output = BpcsStega.postprocessOutput(BPCS.extractMessage(threshold, BPCS.generateSeed(key)), threshold);
             }
             BPCS.parseBitPlanesToImg();
+            
             String filename = BpcsStega.extractFileName(output);
             output = BpcsStega.extractData(output);
+            
             if(EncryptOptionCheckBox2.isSelected()) {
                 String dec = new String(output);
                 VigenereExtended vig = new VigenereExtended(key);
                 dec = vig.Decipher(dec);
                 output = dec.getBytes();
             }
-            Utils.SaveBinaryFile(StegaMsgOutputPath, output);
-            out = Paths.get(StegaImageOutputPath);
-            BPCS.writeImage(out);
+            
+            StegaFileChooser.setSelectedFile(new File(filename));
+            int returnVal = StegaFileChooser.showSaveDialog(StegaPanel);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = StegaFileChooser.getSelectedFile();
+                Utils.SaveBinaryFile(file.getAbsolutePath(), output);
+            } 
             CoverImageView2.setIcon(BPCS.getModifiedImage());
-            StegaImageView4.setIcon(BPCS.getOriginalImage());
         }
     }//GEN-LAST:event_ExtractButtonActionPerformed
     
@@ -1807,10 +1667,6 @@ public class CipherGUI extends javax.swing.JFrame {
     private javax.swing.JTextField ImageInputInfo;
     private javax.swing.JLabel ImageInputLabel;
     private javax.swing.JPanel ImageInputPanel;
-    private javax.swing.JButton ImageOutputButton;
-    private javax.swing.JTextField ImageOutputInfo;
-    private javax.swing.JLabel ImageOutputLabel;
-    private javax.swing.JPanel ImageOutputPanel;
     private javax.swing.JLabel InputLabel2;
     private javax.swing.JPanel InputPanel2;
     private javax.swing.JLabel KeyLabel2;
@@ -1820,8 +1676,6 @@ public class CipherGUI extends javax.swing.JFrame {
     private javax.swing.JPanel MessageEmbeddingPanel2;
     private javax.swing.JLabel OptionsLabel2;
     private javax.swing.JPanel OptionsPanel2;
-    private javax.swing.JLabel OutputLabel2;
-    private javax.swing.JPanel OutputPanel2;
     private javax.swing.JLabel PSNRLabel;
     private javax.swing.JButton PlayfairExecuteButton;
     private javax.swing.JPanel PlayfairExecutePanel;
@@ -1869,10 +1723,6 @@ public class CipherGUI extends javax.swing.JFrame {
     private javax.swing.JTextField TextInputInfo2;
     private javax.swing.JLabel TextInputLabel2;
     private javax.swing.JPanel TextInputPanel2;
-    private javax.swing.JButton TextOutputButton2;
-    private javax.swing.JTextField TextOutputInfo2;
-    private javax.swing.JLabel TextOutputLabel2;
-    private javax.swing.JPanel TextOutputPanel2;
     private javax.swing.JLabel TresholdLabel2;
     private javax.swing.JPanel TresholdPanel2;
     private javax.swing.JTextField TresholdTextField2;

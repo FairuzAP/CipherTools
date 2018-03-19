@@ -84,26 +84,30 @@ public final class BpcsStega {
     public static byte[] embedFileName (byte[] in, String filename) throws IOException {
         byte[] fname = filename.getBytes();
         int flength = fname.length;
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
-        outputStream.write(flength);
+        byte[] b_flength = new byte[] {
+            (byte)(flength >> 24),
+            (byte)(flength >> 16),
+            (byte)(flength >> 8),
+            (byte) flength};
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(b_flength);
         outputStream.write(fname);
         outputStream.write(in);
-
-        return outputStream.toByteArray( );
+        return outputStream.toByteArray();
     }
     
     public static String extractFileName (byte[] out) {
-        byte[] b_flength = Arrays.copyOfRange(out, 0, 3);
+        byte[] b_flength = Arrays.copyOfRange(out, 0, 4);
         int flength = ByteBuffer.wrap(b_flength).getInt();
-        byte[] b_fname = Arrays.copyOfRange(out, 4, 3 + flength);
+        byte[] b_fname = Arrays.copyOfRange(out, 4, 4 + flength);
         String fname = new String(b_fname);
         return fname;
     }
     
     public static byte[] extractData (byte[] out) {
-        byte[] b_flength = Arrays.copyOfRange(out, 0, 3);
+        byte[] b_flength = Arrays.copyOfRange(out, 0, 4);
         int flength = ByteBuffer.wrap(b_flength).getInt();
-        return Arrays.copyOfRange(out, 4 + flength, out.length - 1);
+        return Arrays.copyOfRange(out, 4 + flength, out.length);
     }
     
     /**
